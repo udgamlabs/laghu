@@ -1,0 +1,69 @@
+{
+  "script": "build_neutral.py",
+  "script_sha256": "3c65bb3514568d732e25278c0e7dfc49ed4888b99b8a2012198d61e5a1f0a763",
+  "run_started_utc": "2026-10-17T12:53:01Z",
+  "args": {
+    "out_dir": "${LAGHU_REPO:-.}/udgam3/evals/neutral_text",
+    "cache_dir": "cache",
+    "seed": 20261017,
+    "wiki_start": "2026-09-01",
+    "wiki_end": "2026-10-15",
+    "wiki_bytes": 2400000,
+    "wiki_min_words": 300,
+    "wiki_max_words": 1500,
+    "wiki_min_wikitext_bytes": 5000,
+    "arxiv_start": "2026-10-01",
+    "arxiv_end": "2026-10-17",
+    "arxiv_bytes": 1600000,
+    "arxiv_per_window": 10,
+    "arxiv_cats": null,
+    "skip_wiki": false,
+    "skip_arxiv": false,
+    "out_name": "neutral_v1.jsonl"
+  },
+  "user_agent": "UdgamLabsEvalBuilder/1.0 (https://huggingface.co/udgamlabs; non-commercial research evaluation set) python-urllib",
+  "wiki_event_counts": {
+    "events": 70605,
+    "skip_redirect_event": 46111,
+    "skip_title_pattern": 1382,
+    "skip_recreated": 938,
+    "skip_copied_comment": 1110
+  },
+  "wiki_status_counts": {
+    "rejected:too_short_wikitext": 1176,
+    "accepted": 567,
+    "rejected:under_min_words": 509,
+    "rejected:list_like": 6,
+    "rejected:missing_or_deleted": 220,
+    "rejected:redirect": 232,
+    "rejected:disambiguation": 60
+  },
+  "arxiv_status_counts": {
+    "accepted": 1128,
+    "rejected:abstract_length": 27,
+    "unused:target_reached": 591
+  },
+  "summary": {
+    "wikipedia": {
+      "docs": 567,
+      "bytes": 2402304,
+      "words": 378521,
+      "created_min": "2026-09-01T01:13:27Z",
+      "created_max": "2026-10-15T21:59:32Z"
+    },
+    "arxiv": {
+      "docs": 1128,
+      "bytes": 1601078,
+      "words": 219175,
+      "created_min": "2026-10-01T02:29:02Z",
+      "created_max": "2026-10-15T17:59:59Z"
+    },
+    "total_bytes": 4003382
+  },
+  "http_stats": {
+    "cache_hit": 445,
+    "http_wiki": 1139
+  },
+  "elapsed_s": 2379.9,
+  "output_sha256": "ba341f726e013eed363cfa54f6c5494562031158d4f84e3347fea8245db8a93a"
+}

@@ -1,0 +1,77 @@
+{
+ "n": 13,
+ "unique_grams": 2907548,
+ "per_eval": {
+  "mmlu": {
+   "texts": 14042,
+   "too_short": 231,
+   "grams": 882092,
+   "template_grams_removed": 28791
+  },
+  "arc": {
+   "texts": 3548,
+   "too_short": 92,
+   "grams": 90198,
+   "template_grams_removed": 20
+  },
+  "hellaswag": {
+   "texts": 50210,
+   "too_short": 16,
+   "grams": 3493779,
+   "template_grams_removed": 802
+  },
+  "gsm8k": {
+   "texts": 1319,
+   "too_short": 0,
+   "grams": 127469,
+   "template_grams_removed": 0
+  },
+  "piqa": {
+   "texts": 9844,
+   "too_short": 2207,
+   "grams": 141718,
+   "template_grams_removed": 290
+  },
+  "winogrande": {
+   "texts": 6068,
+   "too_short": 2,
+   "grams": 44551,
+   "template_grams_removed": 0
+  },
+  "openbookqa": {
+   "texts": 1000,
+   "too_short": 167,
+   "grams": 11500,
+   "template_grams_removed": 0
+  },
+  "commonsenseqa": {
+   "texts": 2361,
+   "too_short": 62,
+   "grams": 21250,
+   "template_grams_removed": 0
+  },
+  "ifeval": {
+   "texts": 541,
+   "too_short": 2,
+   "grams": 13620,
+   "template_grams_removed": 53
+  },
+  "bfcl": {
+   "texts": 8200,
+   "too_short": 1964,
+   "grams": 137765,
+   "template_grams_removed": 1225
+  },
+  "math500": {
+   "texts": 500,
+   "too_short": 1,
+   "grams": 65112,
+   "template_grams_removed": 0
+  }
+ },
+ "seconds": 36.2,
+ "long_doc_words": 1500,
+ "long_doc_min_hits": 3,
+ "short_doc_min_hits": 2,
+ "common_items": 3
+}

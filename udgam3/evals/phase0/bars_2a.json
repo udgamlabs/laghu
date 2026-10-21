@@ -1,0 +1,34 @@
+{
+ "arc_easy": {
+  "model": "HuggingFaceTB/SmolLM2-135M",
+  "score": 64.5
+ },
+ "arc_challenge": {
+  "model": "AxiomicLabs/GPT-X3-150M",
+  "score": 31.4
+ },
+ "hellaswag": {
+  "model": "AxiomicLabs/GPT-X3-150M",
+  "score": 45.9
+ },
+ "piqa": {
+  "model": "AxiomicLabs/GPT-X3-150M",
+  "score": 71.3
+ },
+ "winogrande": {
+  "model": "AxiomicLabs/GPT-X3-150M",
+  "score": 53.6
+ },
+ "mmlu": {
+  "model": "tiiuae/Falcon-H1-Tiny-90M-Instruct",
+  "score": 33.1
+ },
+ "mmlu_continuation": {
+  "model": "HuggingFaceTB/SmolLM2-135M",
+  "score": 29.9
+ },
+ "gsm8k": {
+  "model": "facebook/MobileLLM-R1-140M-base",
+  "score": 19.7
+ }
+}

@@ -1,0 +1,47 @@
+{
+ "code": {
+  "docs": 27006,
+  "chars": 60003692,
+  "candidates": 31357
+ },
+ "finephrase": {
+  "docs": 38224,
+  "chars": 60000449,
+  "candidates": 43992
+ },
+ "math": {
+  "docs": 18771,
+  "chars": 60001190,
+  "candidates": 21831
+ },
+ "specialized": {
+  "docs": 10095,
+  "chars": 60003232,
+  "candidates": 11648
+ },
+ "synth": {
+  "docs": 14118,
+  "chars": 60002948,
+  "candidates": 16093
+ },
+ "task_chat": {
+  "docs": 14389,
+  "chars": 60000898,
+  "candidates": 16240
+ },
+ "task_tool": {
+  "docs": 12653,
+  "chars": 60007298,
+  "candidates": 13347
+ },
+ "web_hq": {
+  "docs": 17443,
+  "chars": 60000527,
+  "candidates": 20030
+ },
+ "wiki": {
+  "docs": 20504,
+  "chars": 60001184,
+  "candidates": 23357
+ }
+}

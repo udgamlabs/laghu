@@ -1,0 +1,11 @@
+// Udgam Labs private training dashboard (Cloudflare Worker + D1). Secrets (wrangler secret put): VIEW_TOKEN, PUSH_SECRET.
+{
+  "name": "udgam-train-dash",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "rules": [{ "type": "Text", "globs": ["**/*.html"], "fallthrough": true }],
+  "d1_databases": [{ "binding": "DB", "database_name": "udgam-train-dash", "database_id": "<your-d1-database-id>" }],
+  "observability": { "enabled": false }
+}

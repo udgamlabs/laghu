@@ -1,0 +1,8 @@
+# Udgam-3 shared settings for the dry runs and the main run (sourced by the .conf files; frozen per run).
+SHAPE="--depth 28 --n-embd 640 --n-head 10 --n-kv-head 2 --g4-head-dim 64 --g4-global-head-dim 128 --intermediate-size 1792 --ple-dim 0 --window-pattern SSSL --sliding-window 512 --max-seq-len 2048 --tie-embeddings"
+RECIPE="--device-batch-size 32 --total-batch-size 524288 --warmup-steps 40 --warmdown-ratio 0.65 --final-lr-frac 0.05 --ema-start-frac 0.9 --ema-beta 0.998 --seed 42 --tst-s 4 --tst-frac 0.25 --phase-b-data-dir /workspace/data/shards/phaseB --phase-b-start-frac 0.8 --core-metric-every -1 --sample-every -1"
+VALS="--extra-val web=/workspace/data/val_sets/val_web --extra-val task=/workspace/data/val_sets/val_task --extra-val reason=/workspace/data/val_sets/val_reason --extra-val fresh=/workspace/data/val_sets/val_fresh"
+DATA_REPO=YOUR_HF_NAMESPACE/laghu-pretrain-v3
+EXTRA_DATA_JSON='[{"repo": "YOUR_HF_NAMESPACE/udgam-val-sets", "patterns": ["val_sets/*"], "links": [{"src": "val_sets/val_web/*.parquet", "dst": "val_sets/val_web", "prefix": "", "drop_last": false}, {"src": "val_sets/val_task/*.parquet", "dst": "val_sets/val_task", "prefix": "", "drop_last": false}, {"src": "val_sets/val_reason/*.parquet", "dst": "val_sets/val_reason", "prefix": "", "drop_last": false}]}, {"repo": "YOUR_HF_NAMESPACE/laghu-val-sets", "patterns": ["val_sets/*"], "links": [{"src": "val_sets/val_fresh/*.parquet", "dst": "val_sets/val_fresh", "prefix": "", "drop_last": false}]}]'
+IMAGE=runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04   # widely cached; training uses its own uv venv
+WANDB_PROJECT=udgam3-main

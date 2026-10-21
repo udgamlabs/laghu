@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>Udgam-3 Live Training</title>
+<meta name="description" content="Watch Udgam Labs train Udgam-3, a 150M-parameter English language model, live.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500&family=Figtree:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a research-lab page. Top rail, a large live progress figure, four readouts between hairlines, two curves,
+   a GPU strip, then the log and what comes next; bottom rail with the mark. Udgam Labs brand: ivory ground, ink,
+   hairlines, square corners, one signal-red mark (the "now" tick). Single deliberate light theme, like the website. */
+:root {
+  --ink: #1C1B18; --ink-80: #3F3C36; --graphite: #6B675E; --rule: #E3DDD0; --paper: #FBF9F4; --ivory: #F3EFE6;
+  --signal: #B4432B; --other: #C9C3B6;
+  --head: "Outfit", "Helvetica Neue", Arial, sans-serif; --body: "Figtree", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ivory); color: var(--ink); font: 400 15px/1.55 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: max(20px, env(safe-area-inset-top, 0px)) 28px; }
+.wrap { max-width: 1080px; margin: 0 auto; }
+.label { font: 500 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--graphite); }
+.rail { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+.rail.bottom { border-bottom: 0; border-top: 1px solid var(--ink); padding: 14px 0 0; margin-top: 40px; }
+.signoff { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-80); }
+.signoff svg { flex: none; }
+a { color: var(--ink); text-underline-offset: 3px; }
+.live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); margin-right: 8px; vertical-align: 1px; animation: blink 1.8s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }
+.hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 32px 48px; padding: 36px 0 28px; border-bottom: 1px solid var(--rule); align-items: end; }
+@media (max-width: 760px) { .hero { grid-template-columns: minmax(0, 1fr); padding-top: 24px; } }
+h1 { font: 500 44px/1.08 var(--head); letter-spacing: -.035em; margin: 0 0 14px; text-wrap: balance; }
+@media (max-width: 560px) { h1 { font-size: 34px; } }
+.lede { margin: 0; color: var(--ink-80); max-width: 60ch; }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 18px; margin: 18px 0 0; font-size: 14px; }
+.facts dt { font: 500 11px/1.9 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--graphite); }
+.facts dd { margin: 0; }
+.big { font: 500 84px/1 var(--head); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .big { font-size: 64px; } }
+.big small { font-size: .42em; letter-spacing: -.02em; color: var(--ink-80); margin-left: 4px; }
+.track { position: relative; height: 6px; background: var(--rule); margin: 14px 0 8px; }
+.track > i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ink); width: 0; }
+.track > b { position: absolute; top: -5px; bottom: -5px; width: 1px; background: var(--signal); left: 0; }
+.track-cap { display: flex; justify-content: space-between; font: 400 12px var(--mono); color: var(--graphite); }
+.readouts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--rule); }
+.readouts > div { padding: 18px 18px 18px 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.readouts > div + div { padding-left: 18px; border-left: 1px solid var(--rule); }
+@media (max-width: 760px) { .readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .readouts > div:nth-child(3) { padding-left: 0; border-left: 0; } .readouts > div:nth-child(n+3) { border-top: 1px solid var(--rule); } }
+.readouts .v { font: 500 28px/1.15 var(--head); letter-spacing: -.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.readouts .s { font-size: 13px; color: var(--graphite); }
+section.block { padding: 26px 0; border-bottom: 1px solid var(--rule); }
+h2 { font: 500 22px/1.25 var(--head); letter-spacing: -.02em; margin: 0 0 4px; }
+.sub { margin: 0 0 16px; color: var(--ink-80); font-size: 14px; max-width: 72ch; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; }
+@media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+.chart { position: relative; height: 240px; }
+.wait { height: 240px; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid var(--rule); color: var(--graphite); font-size: 14px; padding: 0 20px; }
+.gpus { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+@media (max-width: 760px) { .gpus { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.gpu { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 12px 10px; min-width: 0; }
+.gpu .u { font: 500 24px/1.1 var(--head); font-variant-numeric: tabular-nums; }
+.gpu .m { font: 400 11px/1.5 var(--mono); color: var(--graphite); }
+.gpu .bar { height: 3px; background: var(--rule); margin: 8px 0 6px; } .gpu .bar i { display: block; height: 100%; background: var(--ink); }
+ol.next { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; } ol.next li::marker { font: 500 13px var(--mono); color: var(--graphite); }
+.log { display: flex; flex-direction: column; }
+.log .e { display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 14px; padding: 9px 0; border-top: 1px solid var(--rule); font-size: 14px; }
+.log .e:first-child { border-top: 0; }
+.log time { font: 400 12px/1.7 var(--mono); color: var(--graphite); }
+.note { font-size: 13px; color: var(--graphite); margin: 16px 0 0; max-width: 72ch; }
+.err { color: var(--ink-80); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="rail">
+    <span class="label">Udgam Labs · Live training</span>
+    <span class="label" id="upd"><span class="live-dot" aria-hidden="true"></span>Connecting…</span>
+  </div>
+
+  <header class="hero">
+    <div>
+      <h1 id="headline">Udgam-3 is training.</h1>
+      <p class="lede" id="summary">An English language model with about 150 million parameters, trained from scratch.</p>
+      <dl class="facts" id="facts"></dl>
+    </div>
+    <div>
+      <span class="label">Progress</span>
+      <div class="big"><span id="pct">–</span><small>%</small></div>
+      <div class="track" aria-hidden="true"><i id="fill"></i><b id="tick"></b></div>
+      <div class="track-cap"><span id="tok-cap">0 tokens</span><span id="tok-target">40B tokens</span></div>
+    </div>
+  </header>
+
+  <div class="readouts" aria-label="Live readouts">
+    <div><span class="label">Tokens processed</span><span class="v" id="r-tok">–</span><span class="s" id="r-tok-s">&nbsp;</span></div>
+    <div><span class="label">Speed</span><span class="v" id="r-speed">–</span><span class="s">tokens per second</span></div>
+    <div><span class="label">Time left</span><span class="v" id="r-eta">–</span><span class="s" id="r-eta-s">&nbsp;</span></div>
+    <div><span class="label">Checkpoints saved</span><span class="v" id="r-ck">–</span><span class="s" id="r-ck-s">&nbsp;</span></div>
+  </div>
+
+  <section class="block">
+    <div class="two">
+      <div>
+        <h2>Loss on unseen text</h2>
+        <p class="sub">Bits per byte on Wikipedia pages and arXiv abstracts published in September and October 2026, after the training data was collected. Lower is better.</p>
+        <div id="held-wrap"><div class="chart"><canvas id="c-held" role="img" aria-label="Held-out loss on new text by share of training"></canvas></div></div>
+      </div>
+      <div>
+        <h2>Training loss</h2>
+        <p class="sub">How well the model predicts the text it is learning from, smoothed. Lower is better.</p>
+        <div id="train-wrap"><div class="chart"><canvas id="c-train" role="img" aria-label="Training loss by share of training"></canvas></div></div>
+      </div>
+    </div>
+    <p class="note" id="note"></p>
+  </section>
+
+  <section class="block">
+    <h2>The GPUs, right now</h2>
+    <p class="sub">Each of the 8 GPUs: how busy it is, its temperature and power draw.</p>
+    <div class="gpus" id="gpus"></div>
+  </section>
+
+  <section class="block">
+    <div class="two">
+      <div>
+        <h2>Log</h2>
+        <p class="sub">What has happened so far, including what went wrong.</p>
+        <div class="log" id="log"></div>
+      </div>
+      <div>
+        <h2>What happens next</h2>
+        <p class="sub">After pretraining finishes.</p>
+        <ol class="next" id="next"></ol>
+      </div>
+    </div>
+  </section>
+
+  <p class="err" id="err" hidden></p>
+
+  <div class="rail bottom">
+    <span class="signoff"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" aria-hidden="true" focusable="false"><path fill="#1C1B18" d="M21.5 41Q21.5 38.56 19.01 35.83Q12.5 28.72 12.5 19Q12.5 16.72 14.11 15.11Q15.72 13.5 18 13.5Q20.28 13.5 21.89 15.11Q23.5 16.72 23.5 19Q23.5 22.78 24.58 25.03Q25.17 26.26 27 28.27Q28.83 26.26 29.42 25.03Q30.5 22.78 30.5 19Q30.5 16.72 32.11 15.11Q33.72 13.5 36 13.5Q38.28 13.5 39.89 15.11Q41.5 16.72 41.5 19Q41.5 28.72 34.99 35.83Q32.5 38.56 32.5 41Q32.5 45.45 34.62 48.24Q36.07 50.14 40.73 53.46Q47.04 57.95 50 61.75Q52.96 57.95 59.27 53.46Q63.93 50.14 65.38 48.24Q67.5 45.45 67.5 41Q67.5 38.56 65.01 35.83Q58.5 28.72 58.5 19Q58.5 16.72 60.11 15.11Q61.72 13.5 64 13.5Q66.28 13.5 67.89 15.11Q69.5 16.72 69.5 19Q69.5 22.78 70.58 25.03Q71.17 26.26 73 28.27Q74.83 26.26 75.42 25.03Q76.5 22.78 76.5 19Q76.5 16.72 78.11 15.11Q79.72 13.5 82 13.5Q84.28 13.5 85.89 15.11Q87.5 16.72 87.5 19Q87.5 28.72 80.99 35.83Q78.5 38.56 78.5 41Q78.5 49.16 74.14 54.9Q71.67 58.14 65.65 62.42Q60.27 66.25 58.45 68.82Q57.3 70.43 56.6 72.49C57.85 73.98 58.6 75.9 58.6 78C58.6 82.75 54.75 86.6 50 86.6C45.25 86.6 41.4 82.75 41.4 78C41.4 75.9 42.15 73.98 43.4 72.49Q42.7 70.43 41.55 68.82Q39.73 66.25 34.35 62.42Q28.33 58.14 25.86 54.9Q21.5 49.16 21.5 41Z"/></svg><span>Udgam Labs · AI research from first principles</span></span>
+    <a class="label" href="https://udgamlabs.com" rel="noreferrer noopener" target="_blank" style="color:var(--ink)">udgamlabs.com</a>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(() => {
+  const API = "__API__";
+  const RUN = (new URLSearchParams(location.search).get("run") || "udgam3-base-v1") + ".public";
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n, d = 0) => n == null || isNaN(n) ? "–" : Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const big = (n) => n >= 1e9 ? (n / 1e9).toFixed(n >= 1e10 ? 1 : 2) + "B" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? Math.round(n / 1e3) + "K" : String(n || 0);
+  const when = (iso) => iso ? new Date(iso).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short" }) : "–";
+  const hm = (m) => m == null ? "–" : (Math.floor(m / 60) ? `${Math.floor(m / 60)}h ${Math.round(m % 60)}m` : `${Math.round(m)}m`);
+  const ago = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return s < 90 ? s + " s ago" : Math.round(s / 60) + " min ago"; };
+  let charts = {}, last = 0;
+
+  function chart(id, label) {
+    return new Chart($(id), { type: "line", data: { datasets: [{ label, data: [], borderColor: "#1C1B18", borderWidth: 2, pointRadius: 0, tension: 0.2 }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, parsing: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { title: (it) => it[0].parsed.x.toFixed(1) + "% of training", label: (it) => " " + it.parsed.y.toFixed(3) } } },
+        interaction: { mode: "nearest", intersect: false },
+        scales: { x: { type: "linear", min: 0, max: 100, ticks: { color: "#6B675E", font: { family: "IBM Plex Mono", size: 11 }, callback: (v) => v + "%" }, grid: { color: "#E3DDD0" }, border: { color: "#1C1B18" } },
+                  y: { ticks: { color: "#6B675E", font: { family: "IBM Plex Mono", size: 11 }, callback: (v) => v.toFixed(2) }, grid: { color: "#E3DDD0" }, border: { display: false } } } } });
+  }
+  function curve(wrapId, canvasId, key, pts, fromPct, label) {
+    if (!pts.length) {
+      $(wrapId).innerHTML = `<div class="wait">This curve appears once training passes ${fromPct}%.</div>`; charts[key] = null; return;
+    }
+    if (!charts[key]) { $(wrapId).innerHTML = `<div class="chart"><canvas id="${canvasId}" role="img" aria-label="${label} by share of training"></canvas></div>`; charts[key] = chart(canvasId, label); }
+    charts[key].data.datasets[0].data = pts.map(([x, y]) => ({ x, y })); charts[key].options.scales.x.min = fromPct; charts[key].update();
+  }
+  function render(d, updatedAt) {
+    last = updatedAt;
+    const p = d.progress || {};
+    $("headline").textContent = d.status === "done" ? "Udgam-3 has finished training." : d.headline || "Udgam-3 is training.";
+    $("summary").textContent = d.summary || "";
+    $("facts").innerHTML = (d.facts || []).map(() => `<dt></dt><dd></dd>`).join("");
+    [...$("facts").children].forEach((el, i) => { const f = d.facts[i >> 1]; el.textContent = i % 2 ? f[1] : f[0]; });
+    const pct = Math.min(100, p.pct || 0);
+    $("pct").textContent = fmt(pct, 1);
+    $("fill").style.width = pct + "%"; $("tick").style.left = `calc(${pct}% - 0.5px)`;
+    $("tok-cap").textContent = big(p.tokens_seen) + " tokens"; $("tok-target").textContent = big(p.tokens_goal) + " tokens";
+    $("r-tok").textContent = big(p.tokens_seen); $("r-tok-s").textContent = "of " + big(p.tokens_goal) + (d.started_iso ? " · since " + when(d.started_iso) : "");
+    $("r-speed").textContent = p.tok_s ? big(p.tok_s) : "–";
+    $("r-eta").textContent = d.status === "done" ? "Done" : hm(p.eta_min);
+    $("r-eta-s").textContent = d.status === "done" ? "" : (p.finish_iso ? "finishes about " + when(p.finish_iso) : "");
+    const ck = d.checkpoints || {};
+    $("r-ck").textContent = fmt(ck.count || 0); $("r-ck-s").textContent = ck.last_iso ? "latest " + when(ck.last_iso) : "none yet";
+    curve("held-wrap", "c-held", "held", d.heldout || [], d.from_pct || 25, "Loss on unseen text");
+    curve("train-wrap", "c-train", "train", d.train || [], d.from_pct || 25, "Training loss");
+    $("note").textContent = (d.note || "") + ` Curves are shown from ${d.from_pct || 25}% of training.`;
+    const g = d.gpus || [];
+    $("gpus").innerHTML = g.length ? g.map((x, i) => `<div class="gpu"><span class="label">GPU ${i}</span><div class="u">${fmt(x.util)}%</div><div class="bar"><i style="width:${Math.min(100, x.util)}%"></i></div><div class="m">${fmt(x.temp)} °C · ${fmt(x.power)} W</div><div class="m">${fmt(x.mem, 0)} / ${fmt(x.mem_total)} GB</div></div>`).join("")
+      : `<div class="gpu" style="grid-column:1/-1"><span class="m">No reading right now.</span></div>`;
+    const ev = (d.events || []).slice().reverse();
+    $("log").innerHTML = ev.map(() => `<div class="e"><time></time><span></span></div>`).join("") || `<div class="e"><span class="m">Nothing yet.</span></div>`;
+    [...$("log").querySelectorAll(".e")].forEach((el, i) => { if (!ev[i]) return; el.querySelector("time").textContent = when(ev[i].t); el.querySelector("span").textContent = ev[i].text; });
+    $("next").innerHTML = (d.next || []).map(() => "<li></li>").join("");
+    [...$("next").children].forEach((li, i) => li.textContent = d.next[i]);
+  }
+  async function load() {
+    try {
+      const r = await fetch(API + "run/" + encodeURIComponent(RUN), { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const j = await r.json(); render(j.data, j.updated_at); $("err").hidden = true;
+    } catch (e) { $("err").hidden = false; $("err").textContent = "The live numbers didn't load (" + e.message + "). Trying again in 30 seconds."; }
+  }
+  setInterval(() => { if (last) $("upd").innerHTML = `<span class="live-dot" aria-hidden="true"></span>Live · updated ${ago(Date.now() - last)}`; }, 1000);
+  load(); setInterval(load, 30000);
+})();
+</script>
+</body>
+</html>

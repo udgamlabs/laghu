@@ -1,0 +1,452 @@
+{
+ "note": "chat-suite models, pinned 2026-10-19; settings documented in models.py",
+ "dtype": "bfloat16",
+ "models": [
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "smollm2-135m-instruct",
+   "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "group": "rival",
+   "sampling": {
+    "temperature": 0.2,
+    "top_p": 0.9
+   },
+   "sampling_src": "model card example (generation_config.json sets none)",
+   "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+   "ctx": 8192,
+   "arch": "LlamaForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 134515008,
+   "licence": "apache-2.0"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "falcon-h1-tiny-90m-instruct",
+   "repo": "tiiuae/Falcon-H1-Tiny-90M-Instruct",
+   "group": "rival",
+   "sampling": {
+    "temperature": 1.0
+   },
+   "sampling_src": "none shipped (generation_config.json and card give none): vLLM default",
+   "sha": "e6389502a0b12cd8da894b395ba5bf7436873b16",
+   "ctx": 262144,
+   "arch": "FalconH1ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 91131072,
+   "licence": "falcon-llm-license"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": true,
+   "bos_check": false,
+   "name": "falcon-h1-tiny-r-90m",
+   "repo": "tiiuae/Falcon-H1-Tiny-R-90M",
+   "group": "rival",
+   "sampling": {
+    "temperature": 1.0
+   },
+   "sampling_src": "none shipped: vLLM default",
+   "rec_cap": 32000,
+   "rec_limit": 300,
+   "rec_cap_src": "no cap published for the 90M; 32,000 is the generation length its authors used for Falcon-H1-Tiny-R GRPO (blog)",
+   "sha": "7385612bf04c64405a51b29b6229d6d2ab0e72fd",
+   "ctx": 262144,
+   "arch": "FalconH1ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 91131072,
+   "licence": "falcon-llm-license"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "supra2-100m-instruct",
+   "repo": "SupraLabs/Supra2-100M-Instruct",
+   "group": "rival",
+   "sampling": {
+    "temperature": 0.2,
+    "top_p": 0.85,
+    "top_k": 25
+   },
+   "sampling_src": "model card example (its no_repeat_ngram_size=3 has no vLLM equivalent and is not applied)",
+   "sha": "2c90ade6ab47b910f48d0157a3e4c421d6311ed5",
+   "ctx": 2048,
+   "arch": "Qwen3ForCausalLM",
+   "config_dtype": "float32",
+   "params": 100684032,
+   "licence": "apache-2.0"
+  },
+  {
+   "engine": "hf",
+   "trust": true,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "cagliostro-v3.5-chat",
+   "repo": "bench-labs/cagliostro-v3.5-chat",
+   "group": "rival",
+   "sampling": {
+    "temperature": 0.3,
+    "repetition_penalty": 1.1
+   },
+   "sampling_src": "model card ('greedy or temperature 0.3 with a repetition penalty of 1.1')",
+   "sha": "e10b21717356d87652f87345677ae160b2d4809d",
+   "ctx": 2048,
+   "arch": "CagliostroForCausalLM",
+   "config_dtype": "float32",
+   "params": 146352000,
+   "licence": "apache-2.0"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": true,
+   "reasoning": true,
+   "bos_check": false,
+   "name": "mobilellm-r1.5-140m",
+   "repo": "facebook/MobileLLM-R1.5-140M",
+   "group": "rival",
+   "sampling": {
+    "temperature": 0.6,
+    "top_p": 0.95
+   },
+   "sampling_src": "model card (the sampling its authors used to regenerate its SFT data); generation_config.json sets none",
+   "rec_cap": 8192,
+   "rec_cap_src": "model card example (max_new_tokens=8192)",
+   "sha": "b3fcd0d55336c709a0a68142fa35905bda79af94",
+   "ctx": 32768,
+   "arch": "Llama4ForCausalLM",
+   "config_dtype": "float32",
+   "params": 140248512,
+   "licence": "fair-noncommercial-research"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "falcon-h1-tiny-tool-calling-90m",
+   "repo": "tiiuae/Falcon-H1-Tiny-Tool-Calling-90M",
+   "group": "rival",
+   "sampling": {
+    "temperature": 1.0
+   },
+   "sampling_src": "none shipped: vLLM default",
+   "sha": "fc099d791a229464b995fdd2fd24e8ffd2d699e8",
+   "ctx": 262144,
+   "arch": "FalconH1ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 91131072,
+   "licence": "falcon-llm-license"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "falcon-h1-tiny-multilingual-100m-instruct",
+   "repo": "tiiuae/Falcon-H1-Tiny-Multilingual-100M-Instruct",
+   "group": "rival_scan",
+   "sampling": {
+    "temperature": 1.0
+   },
+   "sampling_src": "none shipped: vLLM default",
+   "sha": "295b1eb969d4d1683ea7d988ac70fb03990f881c",
+   "ctx": 262144,
+   "arch": "FalconH1ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 107908288,
+   "licence": "falcon-llm-license"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "boris-125m-instruct",
+   "repo": "opencerebral/Boris-125M-Instruct",
+   "group": "rival_scan",
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.95
+   },
+   "sampling_src": "model card example",
+   "stop_strings": [
+    "### Instruction:"
+   ],
+   "sha": "78ed3b5a997205f3dd55832c0df9f8615a5d463e",
+   "ctx": 1024,
+   "arch": "GPT2LMHeadModel",
+   "config_dtype": "float32",
+   "params": 124475904,
+   "licence": "apache-2.0"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "supra2-medium-instruct",
+   "repo": "SupraLabs/Supra2-Medium-Instruct",
+   "group": "rival_scan",
+   "sampling": {
+    "temperature": 0.2,
+    "top_p": 0.85,
+    "top_k": 25
+   },
+   "sampling_src": "model card example (no_repeat_ngram_size=3 not applied)",
+   "sha": "7e22157fd978e2775f3591e4527fa591a93e2393",
+   "ctx": 1024,
+   "arch": "Qwen3ForCausalLM",
+   "config_dtype": "float32",
+   "params": 25383296,
+   "licence": "apache-2.0"
+  },
+  {
+   "engine": "hf",
+   "trust": true,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "surjo-50m-sft-only",
+   "repo": "SurjoLabs/Surjo-50m-SFT-Only",
+   "group": "rival",
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.9
+   },
+   "sampling_src": "model card example",
+   "sha": "f92fe7c8fe7daed65a026aa9db0e349713999d88",
+   "ctx": 2048,
+   "arch": "SurjoForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 53794224,
+   "licence": "apache-2.0"
+  },
+  {
+   "engine": "hf",
+   "trust": true,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "blaze-sft",
+   "repo": "SurjoLabs/Blaze-SFT",
+   "group": "rival_scan",
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.9
+   },
+   "sampling_src": "model card example",
+   "sha": "30351574f9ea621de0d2a631dc1646a80e6321f2",
+   "ctx": 2048,
+   "arch": "BlazeForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 48251136,
+   "licence": "mit"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "off",
+    "on"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": true,
+   "name": "gargi",
+   "repo": "udgamlabs/Gargi",
+   "group": "ours",
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.95,
+    "top_k": 64
+   },
+   "sampling_src": "generation_config.json",
+   "sha": "7e0e6dd39d28ca1a6f5f47ffe4f893fa0fb542bf",
+   "ctx": 32768,
+   "arch": "Gemma4ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 384389268,
+   "licence": "apache-2.0"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "off",
+    "on"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": true,
+   "name": "udgam-384m-chat",
+   "repo": "UdgamLabs/Udgam-384M-Chat",
+   "group": "ours",
+   "sampling": {
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "top_k": 40
+   },
+   "sampling_src": "generation_config.json",
+   "sha": "d3feca0bed05ee5ac4a318af97530e806009eb79",
+   "ctx": 4096,
+   "arch": "Gemma4ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 384389268,
+   "licence": "apache-2.0"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": true,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "gemma-3-270m-it",
+   "repo": "google/gemma-3-270m-it",
+   "group": "reference",
+   "sampling": {
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 64
+   },
+   "sampling_src": "generation_config.json",
+   "sha": "ac82b4e820549b854eebf28ce6dedaf9fdfa17b3",
+   "ctx": 32768,
+   "arch": "Gemma3ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 268098176,
+   "licence": "gemma"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "lfm2.5-230m",
+   "repo": "LiquidAI/LFM2.5-230M",
+   "group": "reference",
+   "sampling": {
+    "temperature": 0.1,
+    "top_k": 50,
+    "repetition_penalty": 1.05
+   },
+   "sampling_src": "generation_config.json",
+   "sha": "40cb2ad3b3044d5a41eee083a6103c8b523afa45",
+   "ctx": 128000,
+   "arch": "Lfm2ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 229693184,
+   "licence": "lfm1.0"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "native"
+   ],
+   "gated": false,
+   "reasoning": false,
+   "bos_check": false,
+   "name": "smollm2-360m-instruct",
+   "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "group": "reference",
+   "sampling": {
+    "temperature": 0.2,
+    "top_p": 0.9
+   },
+   "sampling_src": "model card example (generation_config.json sets none)",
+   "sha": "a10cc1512eabd3dde888204e902eca88bddb4951",
+   "ctx": 8192,
+   "arch": "LlamaForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 361821120,
+   "licence": "apache-2.0"
+  },
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "off",
+    "on"
+   ],
+   "gated": true,
+   "reasoning": false,
+   "bos_check": true,
+   "name": "laghu",
+   "repo": "udgamlabs/Laghu-SFT-v1",
+   "group": "candidate",
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.95,
+    "top_k": 64
+   },
+   "sampling_src": "generation_config.json",
+   "sha": "419343f6a25b99b90ccbd829bbb3619b9c957460",
+   "ctx": 16384,
+   "arch": "Gemma4ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 151800000,
+   "licence": "apache-2.0 (planned)"
+  }
+ ]
+}

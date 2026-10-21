@@ -1,0 +1,28 @@
+Laghu
+Copyright 2026 Udgam Labs LLP
+
+This repository holds the code used to build the data for, train and evaluate Laghu
+(https://huggingface.co/udgamlabs/Laghu). It is licensed under the Apache License, Version 2.0 (see LICENSE),
+except as noted below.
+
+nanochat/
+  Based on nanochat by Andrej Karpathy (https://github.com/karpathy/nanochat), forked at commit 92d63d4
+  (2026-07-03). Copyright (c) 2025 Andrej Karpathy, MIT License; the full MIT notice is in nanochat/LICENSE and must
+  be kept with any copy of these files.
+  - Unchanged nanochat files remain under the MIT License only.
+  - Files modified by Udgam Labs (original parts MIT, Udgam Labs changes Apache-2.0):
+      nanochat/dataloader.py, nanochat/dataset.py, nanochat/flash_attention.py, nanochat/optim.py,
+      nanochat/tokenizer.py, scripts/base_train.py, pyproject.toml, uv.lock
+  - Files added by Udgam Labs (Apache-2.0):
+      nanochat/gemma4.py, nanochat/gsm_eval.py, nanochat/udgam_loop.py, nanochat/udgam_tokenizer.py,
+      scripts/eval_long.py, scripts/export_hf.py, scripts/udgam_sft.py,
+      tests/test_gemma4_parity.py, tests/test_udgam2_features.py, tests/test_udgam_loop.py
+
+tokenizer/chat_template.jinja
+  Google's Gemma 4 chat template, copied unchanged from google/gemma-4-E2B-it (Copyright Google LLC), Apache-2.0.
+  The same template ships with the Laghu weights on Hugging Face.
+
+Data and model outputs
+  This repository contains code, configs, documentation and small metadata files, not training data or weights.
+  The scripts download third-party datasets; each keeps its own licence and terms (see docs/DATA_LICENSES.md for every
+  source, its licence and the credit it asks for). The model weights are on Hugging Face under udgamlabs/.

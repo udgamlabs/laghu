@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>Udgam Training Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an instrument panel. Status strip, six readouts, a phase rail with a needle, then charts and logs in a grid. */
+:root {
+  --bg: #f3f5f2; --panel: #ffffff; --ink: #141a1f; --muted: #5d6670; --faint: #8a939b; --line: #dde2dd;
+  --accent: #0e6f86; --accent-soft: #e2f0f3;
+  --ok: #17803d; --ok-soft: #e3f3e8; --warn: #a86400; --warn-soft: #fbf0dc; --bad: #b42318; --bad-soft: #fbe6e3;
+  --s-web: #2a78d6; --s-reason: #1baf7a; --s-task: #c98a00; --s-val: #7a838c; --s-fresh: #6250d6; --s-loss: #0e6f86; --s-tok: #eb6834;
+  --tst: #d9e7ec; --norm: #e7ecd9; --cool: #f1e3d6;
+  --sans: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1316; --panel: #161c20; --ink: #e8ece9; --muted: #a3acb3; --faint: #77818a; --line: #263038;
+  --accent: #54b8cf; --accent-soft: #15313a;
+  --ok: #4cc27a; --ok-soft: #14301f; --warn: #e3a54a; --warn-soft: #34270f; --bad: #f07a6c; --bad-soft: #3a1915;
+  --s-web: #4f97ec; --s-reason: #2fcf94; --s-task: #e0b03a; --s-val: #9aa3ab; --s-fresh: #9a8cf0; --s-loss: #54b8cf; --s-tok: #f08a5c;
+  --tst: #1d3239; --norm: #29321d; --cool: #3a2b20; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1316; --panel: #161c20; --ink: #e8ece9; --muted: #a3acb3; --faint: #77818a; --line: #263038;
+  --accent: #54b8cf; --accent-soft: #15313a;
+  --ok: #4cc27a; --ok-soft: #14301f; --warn: #e3a54a; --warn-soft: #34270f; --bad: #f07a6c; --bad-soft: #3a1915;
+  --s-web: #4f97ec; --s-reason: #2fcf94; --s-task: #e0b03a; --s-val: #9aa3ab; --s-fresh: #9a8cf0; --s-loss: #54b8cf; --s-tok: #f08a5c;
+  --tst: #1d3239; --norm: #29321d; --cool: #3a2b20; color-scheme: dark; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: max(16px, env(safe-area-inset-top, 0px)) 40px; }
+.wrap { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.mono, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+.title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { margin: 0; font-size: 22px; font-weight: 600; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 13px; }
+.right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+select { font: 13px var(--sans); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.training { color: var(--accent); background: var(--accent-soft); }
+.pill.training::before { animation: pulse 1.6s ease-in-out infinite; }
+.pill.done { color: var(--ok); background: var(--ok-soft); }
+.pill.starting, .pill.stale { color: var(--warn); background: var(--warn-soft); }
+.pill.failed, .pill.stopped { color: var(--bad); background: var(--bad-soft); }
+@keyframes pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .pill.training::before { animation: none; } }
+.updated { font-size: 12px; color: var(--muted); }
+.tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 1100px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tile .v { font-size: 19px; } }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tile .k { font-size: 12px; color: var(--muted); }
+.tile .v { font-family: var(--mono); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .d { font-size: 12px; color: var(--muted); font-family: var(--mono); overflow-wrap: anywhere; }
+.meter { height: 4px; border-radius: 2px; background: var(--line); margin-top: 6px; overflow: hidden; }
+.meter > i { display: block; height: 100%; background: var(--accent); width: 0; }
+.meter.cost > i { background: var(--s-tok); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.panel h2 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+.panel .note { margin: 0 0 10px; font-size: 12px; color: var(--muted); }
+.rail { position: relative; height: 30px; border-radius: 6px; overflow: hidden; display: flex; font-size: 11px; }
+.rail > div { display: flex; align-items: center; padding: 0 8px; white-space: nowrap; overflow: hidden; color: var(--ink); }
+.rail .seg-tst { background: var(--tst); } .rail .seg-norm { background: var(--norm); } .rail .seg-cool { background: var(--cool); }
+.needle { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); left: 0; }
+.rail-wrap { position: relative; padding-top: 18px; }
+.needle-lab { position: absolute; top: 0; font: 11px var(--mono); color: var(--ink); transform: translateX(-50%); white-space: nowrap; }
+.ticks { position: relative; height: 16px; font: 11px var(--mono); color: var(--faint); margin-top: 4px; }
+.ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.ticks span:first-child { transform: none; } .ticks span:last-child { transform: translateX(-100%); }
+@media (max-width: 560px) { .ticks span.ema { display: none; } }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 16px; }
+.chart { position: relative; height: 260px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 3px; border-radius: 2px; display: inline-block; }
+.legend i.dash { height: 0; border-top: 2px dashed var(--faint); background: none; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 12px; padding: 4px 8px 6px 0; border-bottom: 1px solid var(--line); }
+td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.num, th.num { text-align: right; }
+.scroll { max-height: 320px; overflow: auto; }
+.ev { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.ev time { font: 12px var(--mono); color: var(--muted); }
+.ev .t { border-left: 3px solid var(--line); padding-left: 8px; }
+.ev.ok .t { border-color: var(--ok); } .ev.warn .t { border-color: var(--warn); } .ev.bad .t { border-color: var(--bad); } .ev.info .t { border-color: var(--accent); }
+dl.cfg { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; margin: 0; font-size: 13px; }
+dl.cfg dt { color: var(--muted); } dl.cfg dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
+.meters { display: flex; flex-direction: column; gap: 12px; }
+.mrow .top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; flex-wrap: wrap; }
+.mrow .top b { font-weight: 600; }
+.mrow .bar { position: relative; height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; margin-top: 4px; }
+.mrow .bar i { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent); }
+.mrow .bar i.second { background: var(--s-tok); }
+.mrow .cap { font-size: 12px; color: var(--muted); margin-top: 3px; font-family: var(--mono); }
+.chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.chip.live { background: var(--accent-soft); color: var(--accent); } .chip.after { background: var(--line); color: var(--muted); }
+.chip.now { background: var(--accent-soft); color: var(--accent); } .chip.next { background: var(--warn-soft); color: var(--warn); } .chip.later { background: var(--line); color: var(--muted); }
+.chip.up { background: var(--ok-soft); color: var(--ok); } .chip.down { background: var(--bad-soft); color: var(--bad); }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.steps li { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; }
+.steps .c { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.stack { display: flex; height: 18px; border-radius: 5px; overflow: hidden; background: var(--line); position: relative; }
+.stack > i { display: block; height: 100%; }
+.stack .capline { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); }
+.bleg { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.bleg span { display: inline-flex; align-items: center; gap: 6px; } .bleg i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.mon { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.mon .m { display: grid; grid-template-columns: 96px 64px minmax(0, 1fr); gap: 8px; font-size: 13px; align-items: baseline; }
+.mon .m .last { font: 12px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+td.ok { color: var(--ok); } td.warnc { color: var(--warn); }
+a { color: var(--accent); }
+.empty { padding: 40px 0; text-align: center; color: var(--muted); }
+.err { color: var(--bad); font-size: 13px; }
+.phead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px 16px; }
+.phead > div:first-child { flex: 1 1 420px; min-width: 0; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; flex: none; }
+.seg button { font: 12px var(--sans); color: var(--muted); background: var(--panel); border: 0; padding: 6px 11px; cursor: pointer; min-height: 32px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 14px; }
+.mini { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.mini .mhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.mini .mhead b { font-size: 13px; font-weight: 600; }
+.mini .mnote { margin: 0; font-size: 12px; color: var(--muted); }
+.mini .chart { height: 210px; }
+.mini .gap { margin: 0; font: 12px/1.45 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.mini .gap .worse { color: var(--warn); } .mini .gap .better { color: var(--ok); }
+.mini .flist { font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.mini .flist span:first-child { flex-basis: 100%; } .mini .flist .worse { color: var(--warn); font-weight: 600; } .mini .flist .better { color: var(--ok); font-weight: 600; }
+.chip.same { background: var(--ok-soft); color: var(--ok); } .chip.shape { background: var(--warn-soft); color: var(--warn); } .chip.approx { background: var(--accent-soft); color: var(--accent); }
+.legend i.dot { height: 0; border-top: 2px dotted var(--muted); background: none; }
+.legend i.ref { height: 0; border-top: 1.5px dashed var(--faint); background: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">
+      <span class="eyebrow">Udgam Labs · private</span>
+      <h1 id="run-title">Training monitor</h1>
+      <span class="sub" id="run-sub">Loading the latest numbers…</span>
+    </div>
+    <div class="right">
+      <select id="run-select" aria-label="Choose a run"></select>
+      <span class="pill starting" id="status">loading</span>
+      <span class="updated" id="updated"></span>
+    </div>
+  </header>
+
+  <section class="tiles" aria-label="Key numbers">
+    <div class="tile"><span class="k">Progress</span><span class="v" id="t-prog">–</span><span class="d" id="t-prog-d">&nbsp;</span><div class="meter"><i id="m-prog"></i></div></div>
+    <div class="tile"><span class="k">Time left</span><span class="v" id="t-eta">–</span><span class="d" id="t-eta-d">&nbsp;</span></div>
+    <div class="tile"><span class="k">Speed</span><span class="v" id="t-speed">–</span><span class="d" id="t-speed-d">&nbsp;</span></div>
+    <div class="tile"><span class="k">Cost</span><span class="v" id="t-cost">–</span><span class="d" id="t-cost-d">&nbsp;</span><div class="meter cost"><i id="m-cost"></i></div></div>
+    <div class="tile"><span class="k">Fresh-text loss (bits/byte)</span><span class="v" id="t-fresh">–</span><span class="d" id="t-fresh-d">&nbsp;</span></div>
+    <div class="tile"><span class="k">Last checkpoint</span><span class="v" id="t-ckpt">–</span><span class="d" id="t-ckpt-d">&nbsp;</span></div>
+  </section>
+
+  <section class="panel" aria-label="Training phases">
+    <h2>Where the run is</h2>
+    <p class="note" id="phase-note">&nbsp;</p>
+    <div class="rail-wrap">
+      <span class="needle-lab" id="needle-lab"></span>
+      <div class="rail" id="rail"><div class="seg-tst" id="seg-tst">Token bags (TST)</div><div class="seg-norm" id="seg-norm">Next-token training</div><div class="seg-cool" id="seg-cool">Cool-down data</div><span class="needle" id="needle"></span></div>
+      <div class="ticks" id="ticks"></div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>On track? Compared with Gargi</h2>
+      <p class="note" id="cmp-note">&nbsp;</p>
+      <div class="legend" id="cmp-legend"></div>
+      <div class="chart"><canvas id="c-cmp" role="img" aria-label="Udgam-3 and Gargi held-out loss by share of training"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Learning rate</h2>
+      <p class="note">Share of the peak learning rate. It holds at 100% for the first 35% of training, then cools steadily to 5%, which is when the loss falls fastest. Dashed: the plan; solid: what the run reports.</p>
+      <div class="chart"><canvas id="c-lr" role="img" aria-label="Learning-rate multiplier by step, planned and actual"></canvas></div>
+    </div>
+  </section>
+
+  <section class="panel" id="cr" aria-label="Compared with earlier runs, set by set" hidden>
+    <div class="phead">
+      <div>
+        <h2>Compared with earlier runs, set by set</h2>
+        <p class="note" id="cr-note">&nbsp;</p>
+      </div>
+      <div class="seg" role="group" aria-label="Horizontal axis">
+        <button type="button" data-x="share" aria-pressed="true">% of training</button>
+        <button type="button" data-x="tokens" aria-pressed="false">Tokens trained on</button>
+      </div>
+    </div>
+    <div class="legend" id="cr-legend"></div>
+    <div class="grid3" id="cr-grid"></div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>Held-out loss</h2>
+      <p class="note" id="eval-note">Bits per byte on text the model never trains on. Lower is better. While token bags are on, these read high; they drop when that phase ends. The untrained step 0 is left out. Dashed lines: final scores of reference models on our fresh-text benchmark, for scale.</p>
+      <div class="legend" id="eval-legend"></div>
+      <div class="chart"><canvas id="c-eval" role="img" aria-label="Held-out bits per byte by training step for each validation set"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Training loss</h2>
+      <p class="note">Smoothed training loss, by step (from step 25).</p>
+      <div class="chart"><canvas id="c-loss" role="img" aria-label="Training loss by step"></canvas></div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>Data read</h2>
+      <p class="note" id="data-note">&nbsp;</p>
+      <div class="meters" id="data-meters"></div>
+    </div>
+    <div class="panel">
+      <h2>Monitoring</h2>
+      <p class="note">The safety net on the Mac, and the GPUs on the training machine.</p>
+      <div class="mon" id="mon"></div>
+      <div class="scroll" style="max-height:none"><table><thead><tr><th>GPU</th><th class="num">Use</th><th class="num">Memory</th><th class="num">Power</th><th class="num">Temp</th></tr></thead><tbody id="gpus"><tr><td colspan="5" class="empty">Waiting for the first reading.</td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>Targets</h2>
+      <p class="note">What counts as success, and when each is checked.</p>
+      <div class="scroll" style="max-height:none"><table><thead><tr><th>Check</th><th>Must</th><th>Aim</th><th>When</th></tr></thead><tbody id="targets"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <h2>What happens next, and the budget</h2>
+      <p class="note" id="budget-note">&nbsp;</p>
+      <div class="stack" id="stack"></div>
+      <div class="bleg" id="bleg"></div>
+      <ul class="steps" id="steps" style="margin-top:14px"></ul>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>Speed</h2>
+      <p class="note">Tokens per second across all GPUs.</p>
+      <div class="chart"><canvas id="c-tok" role="img" aria-label="Throughput in tokens per second by step"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Events</h2>
+      <p class="note">What happened, newest first.</p>
+      <div class="scroll" id="events"><div class="empty">No events yet.</div></div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>Checkpoints on Hugging Face</h2>
+      <p class="note" id="ckpt-note">Saved every few thousand steps; the newest two are kept.</p>
+      <div class="scroll"><table><thead><tr><th>Step</th><th class="num">Tokens</th><th class="num">Uploaded</th></tr></thead><tbody id="ckpts"><tr><td colspan="3" class="empty">None yet.</td></tr></tbody></table></div>
+    </div>
+    <div class="panel">
+      <h2>Run setup</h2>
+      <p class="note">Frozen at launch.</p>
+      <dl class="cfg" id="cfg"></dl>
+    </div>
+  </section>
+  <p class="err" id="err" hidden></p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(() => {
+  const base = location.pathname.endsWith("/") ? location.pathname : location.pathname + "/";
+  const $ = (id) => document.getElementById(id);
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const fmt = (n, d = 0) => (n == null || isNaN(n)) ? "–" : Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const kfmt = (n) => n >= 1e9 ? (n / 1e9).toFixed(n >= 1e10 ? 1 : 2) + "B" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(0) + "K" : String(n);
+  const tfmt = (iso) => iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "–";
+  const dfmt = (iso) => iso ? new Date(iso).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "–";
+  const ago = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return s < 60 ? s + " s ago" : s < 3600 ? Math.round(s / 60) + " min ago" : (s / 3600).toFixed(1) + " h ago"; };
+  const hm = (min) => { if (min == null) return "–"; const h = Math.floor(min / 60), m = Math.round(min % 60); return h ? `${h}h ${m}m` : `${m} min`; };
+  const SERIES = [["fresh", "Fresh text (Sep–Oct 2026)", "--s-fresh"], ["web", "Web", "--s-web"], ["reason", "Reasoning", "--s-reason"],
+                  ["task", "Chat-style", "--s-task"], ["Validation", "Mixed validation", "--s-val"]];
+  let charts = {}, current = null, lastUpdated = 0, timer = null, lastData = null, lastAt = 0;
+  const SETCOL = { web: "--s-web", reason: "--s-reason", task: "--s-task", Validation: "--s-val", fresh: "--s-fresh" };
+  let xMode = "share";
+  try { xMode = localStorage.getItem("udgam-dash-xmode") === "tokens" ? "tokens" : "share"; } catch (_) {}
+  const interp = (pts, x) => { if (!pts.length) return null; if (x <= pts[0].x) return pts[0].y; for (let i = 1; i < pts.length; i++) if (x <= pts[i].x) { const a = pts[i - 1], b = pts[i]; return a.y + (b.y - a.y) * (x - a.x) / (b.x - a.x); } return null; };
+  const endLabels = { id: "endLabels", afterDatasetsDraw(ch) {
+    const { ctx, chartArea: a, scales: { y } } = ch; const items = [];
+    ch.data.datasets.forEach((ds) => { if (ds._fin) { const py = y.getPixelForValue(ds._fin.value); if (py >= a.top && py <= a.bottom) items.push({ py, t: ds._fin.short }); } });
+    items.sort((p, q) => p.py - q.py); let prev = -1e9;
+    ctx.save(); ctx.font = "10px " + css("--sans"); ctx.fillStyle = css("--muted"); ctx.textAlign = "right"; ctx.textBaseline = "bottom";
+    items.forEach((it) => { const yy = Math.max(it.py - 1, prev + 11), w = ctx.measureText(it.t).width;
+      ctx.fillStyle = css("--panel"); ctx.fillRect(a.right - 5 - w, yy - 10, w + 4, 10); ctx.fillStyle = css("--muted"); ctx.fillText(it.t, a.right - 3, yy); prev = yy; });
+    ctx.restore(); } };
+  function renderCompare(d) {
+    const cr = d.compare_runs; if (!cr) return;
+    const c = d.config || {}, total = c.steps_total || 1, B = c.batch || 0, sec = $("cr"); sec.hidden = false;
+    const conv = (step, steps, batch) => xMode === "share" ? 100 * step / steps : step * batch / 1e9;
+    const xmax = xMode === "share" ? 100 : Math.round(total * B / 1e8) / 10;
+    [...sec.querySelectorAll(".seg button")].forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.x === xMode)));
+    $("cr-note").textContent = "Lower is better (bits per byte on held-out text). Solid: Udgam-3, live. Dashed: Gargi. Dotted: Udgam-384M. " +
+      (xMode === "share" ? "By share of training, so the phases line up (the first 25% read high in Udgam-3 and Gargi because of token bags, so those early points sit above the top edge). " :
+        "By tokens trained on (steps × batch), so you can see how much data each run needed for the same loss. ") + (cr.finals_note || "");
+    $("cr-legend").innerHTML = `<span><i style="background:var(--ink)"></i>Udgam-3 (live)</span>` + cr.runs.map((r) => `<span><i class="${r.style === "dot" ? "dot" : "dash"}"></i>${r.label}</span>`).join("") + `<span><i class="ref"></i>finished models (after-training score)</span>`;
+    const grid = $("cr-grid");
+    if (!grid.dataset.built) {
+      grid.innerHTML = cr.sets.map((s) => `<div class="mini"><div class="mhead"><b></b><span class="chip ${s.fair}">${{ same: "same text", shape: "compare the shape", approx: "for scale" }[s.fair] || ""}</span></div>
+        <p class="mnote"></p><div class="chart"><canvas id="cr-c-${s.key}" role="img"></canvas></div><p class="gap" id="cr-gap-${s.key}"></p><div class="flist" id="cr-fl-${s.key}"></div></div>`).join("");
+      [...grid.querySelectorAll(".mini")].forEach((el, i) => { el.querySelector("b").textContent = cr.sets[i].label; el.querySelector(".mnote").textContent = cr.sets[i].note;
+        el.querySelector("canvas").setAttribute("aria-label", cr.sets[i].label + ": Udgam-3 against earlier runs"); });
+      grid.dataset.built = "1";
+    }
+    cr.sets.forEach((s) => {
+      const col = css(SETCOL[s.key] || "--accent");
+      const mine = ((d.evals || {})[s.key] || []).filter(([st, v]) => st > 0 && v != null).map(([st, v]) => ({ x: conv(st, total, B), y: v, f: st / total }));
+      const others = cr.runs.filter((r) => (r.series[s.key] || []).length).map((r) => ({ r, pts: r.series[s.key].filter(([st]) => st > 0).map(([st, v]) => ({ x: conv(st, r.steps_total, r.batch), y: v, f: st / r.steps_total })) }));
+      const fin = (cr.finals || {})[s.key] || [];
+      const steady = mine.filter((p) => p.f >= 0.3).concat(...others.map((o) => o.pts.filter((p) => p.f >= 0.3)));
+      const ys = steady.map((p) => p.y).concat(fin.map((f) => f.value));
+      const lo = ys.length ? Math.min(...ys) : 0.5, hi = ys.length ? Math.max(...ys) : 1.5, pad = Math.max(0.01, (hi - lo) * 0.08);
+      const ds = [{ label: "Udgam-3", data: mine, borderColor: col, pointRadius: 2.5, pointBackgroundColor: col, borderWidth: 2.2 }]
+        .concat(others.map((o) => ({ label: o.r.label, data: o.pts, borderColor: col + (o.r.style === "dot" ? "aa" : "dd"), borderDash: o.r.style === "dot" ? [2, 3] : [6, 4], borderWidth: 1.6, pointRadius: 1.8, pointBackgroundColor: col + "aa" })))
+        .concat(fin.map((f) => ({ label: f.label + " (finished)", _fin: { value: f.value, short: f.label.replace(" (384M)", "") }, data: [{ x: 0, y: f.value }, { x: xmax, y: f.value }], borderColor: css("--faint"), borderDash: [3, 4], borderWidth: 1, pointRadius: 0 })));
+      const id = "cr-c-" + s.key;
+      if (!charts[id]) {
+        charts[id] = mkChart(id, ds, (v) => v.toFixed(2), [endLabels]);
+        charts[id].options.plugins.tooltip.callbacks.title = (it) => xMode === "share" ? it[0].parsed.x.toFixed(0) + "% of training" : it[0].parsed.x.toFixed(1) + "B tokens";
+        charts[id].options.plugins.tooltip.callbacks.label = (it) => `${it.dataset.label}: ${it.parsed.y.toFixed(3)}`;
+      } else charts[id].data.datasets = ds;
+      const o = charts[id].options.scales;
+      o.x.min = 0; o.x.max = xmax; o.x.title.text = xMode === "share" ? "% of training" : "tokens trained on (B)";
+      o.x.ticks.callback = xMode === "share" ? (v) => v + "%" : (v) => (+v.toFixed(1)) + "B";
+      const stepY = (hi - lo) > 0.3 ? 0.1 : (hi - lo) > 0.12 ? 0.05 : 0.02;
+      o.y.min = Math.max(0, Math.floor((lo - pad) / stepY) * stepY); o.y.max = Math.ceil((hi + pad) / stepY) * stepY;
+      charts[id].update();
+      // where Udgam-3 stands now against each earlier run at the same point
+      const last = mine.length ? mine[mine.length - 1] : null, gap = $("cr-gap-" + s.key);
+      if (!last) { gap.textContent = "First Udgam-3 measurement pending."; }
+      else if (s.fair === "shape") {
+        // levels differ by construction here, so compare how much each run improved since 30% of training
+        const byShare = (pts, steps, batch) => pts.map((q) => ({ x: 100 * q.f, y: q.y }));
+        const now = 100 * last.f, rel = (pts) => { const a = interp(pts, 30), b = interp(pts, now); return a && b ? 100 * (a - b) / a : null; };
+        const mineS = byShare(mine), ru = rel(mineS);
+        const parts = others.map((oo) => { const r = rel(byShare(oo.pts)); return r == null ? null : `${oo.r.label.split(" (")[0]} ${r.toFixed(1)}%`; }).filter(Boolean);
+        gap.innerHTML = `Udgam-3 now (${now.toFixed(0)}%): <b>${last.y.toFixed(3)}</b><br>Improvement from 30% to ${now.toFixed(0)}% of training: Udgam-3 <b>${ru == null ? "–" : ru.toFixed(1) + "%"}</b>` +
+          (parts.length ? " · " + parts.join(" · ") : "") + "<br><span style=\"color:var(--muted)\">Levels are not comparable on this set, so no gap is shown.</span>";
+      }
+      else {
+        const word = (dlt) => Math.abs(dlt) < 0.0005 ? "level" : `<span class="${dlt > 0 ? "worse" : "better"}">${Math.abs(dlt).toFixed(3)} ${dlt > 0 ? "higher" : "lower"}</span>`;
+        const where = xMode === "share" ? `${last.x.toFixed(0)}%` : `${last.x.toFixed(1)}B tokens`;
+        const parts = others.map((oo) => { const v = interp(oo.pts, last.x), name = oo.r.label.split(" (")[0];
+          if (v != null) return `${name} at ${where}: ${v.toFixed(3)} (Udgam-3 ${word(last.y - v)})`;
+          const end = oo.pts[oo.pts.length - 1]; return `${name} finished at ${end.y.toFixed(3)} (Udgam-3 now ${word(last.y - end.y)})`; });
+        gap.innerHTML = `Udgam-3 now (${where}): <b>${last.y.toFixed(3)}</b>` + (parts.length ? "<br>" + parts.join("<br>") : "");
+      }
+      const lastV = mine.length ? mine[mine.length - 1].y : null;
+      $("cr-fl-" + s.key).innerHTML = fin.length ? "<span>Finished models (Udgam-3 now vs each; + = Udgam-3 higher, worse):</span>" + fin.map((f) => { const dd = lastV == null ? null : lastV - f.value;
+        return `<span>${f.label} ${f.value.toFixed(3)}${dd == null ? "" : ` <b class="${dd > 0 ? "worse" : "better"}">${dd > 0 ? "+" : "−"}${Math.abs(dd).toFixed(3)}</b>`}</span>`; }).join("") : "";
+    });
+  }
+
+  function axisOpts() {
+    const grid = css("--line"), tick = css("--faint");
+    return { x: { type: "linear", ticks: { color: tick, callback: (v) => kfmt(v), maxTicksLimit: 7 }, grid: { color: grid }, title: { display: true, text: "step", color: tick } },
+             y: { ticks: { color: tick }, grid: { color: grid } } };
+  }
+  function mkChart(id, datasets, yfmt, plugins) {
+    const o = axisOpts();
+    if (yfmt) o.y.ticks.callback = yfmt;
+    return new Chart($(id), { type: "line", data: { datasets }, plugins: plugins || [], options: { responsive: true, maintainAspectRatio: false, animation: false, parsing: false, normalized: true,
+      interaction: { mode: "nearest", intersect: false }, plugins: { legend: { display: false }, tooltip: { callbacks: { title: (it) => "step " + fmt(it[0].parsed.x) } } },
+      elements: { point: { radius: 0, hoverRadius: 3 }, line: { borderWidth: 2, tension: 0.15 } }, scales: o } });
+  }
+  function ensureCharts(d) {
+    if (charts.eval) return;
+    const refs = (d.refs || []).map((r) => ({ label: r.label, data: [], borderColor: css("--faint"), borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0, _ref: r.value }));
+    charts.eval = mkChart("c-eval", SERIES.map(([k, lab, c]) => ({ label: lab, _key: k, data: [], borderColor: css(c), pointRadius: 2.5, pointBackgroundColor: css(c) })).concat(refs), (v) => v.toFixed(2));
+    charts.loss = mkChart("c-loss", [{ label: "loss", data: [], borderColor: css("--s-loss") }], (v) => v.toFixed(1));
+    charts.cmp = mkChart("c-cmp", [
+      { label: "Udgam-3 web", _k: "web", data: [], borderColor: css("--s-web"), pointRadius: 2.5, pointBackgroundColor: css("--s-web") },
+      { label: "Udgam-3 reasoning", _k: "reason", data: [], borderColor: css("--s-reason"), pointRadius: 2.5, pointBackgroundColor: css("--s-reason") },
+      { label: "Gargi web", _g: "web", data: [], borderColor: css("--s-web"), borderDash: [6, 4], borderWidth: 1.5, pointRadius: 2 },
+      { label: "Gargi reasoning", _g: "reason", data: [], borderColor: css("--s-reason"), borderDash: [6, 4], borderWidth: 1.5, pointRadius: 2 },
+      { label: "projected final web (high)", _b: 1, data: [], borderColor: "transparent", pointRadius: 0 },
+      { label: "projected final web (low)", _b: 0, data: [], borderColor: "transparent", pointRadius: 0, fill: { target: "-1" }, backgroundColor: css("--s-web") + "40" }],
+      (v) => v.toFixed(2));
+    charts.cmp.options.scales.x.title.text = "% of training"; charts.cmp.options.scales.x.ticks.callback = (v) => v + "%";
+    charts.cmp.options.plugins.tooltip.callbacks.title = (it) => it[0].parsed.x.toFixed(0) + "% of training";
+    charts.lr = mkChart("c-lr", [{ label: "planned", data: [], borderColor: css("--faint"), borderDash: [5, 4], borderWidth: 1.5 },
+      { label: "actual", data: [], borderColor: css("--s-loss") }], (v) => Math.round(v * 100) + "%");
+    charts.tok = mkChart("c-tok", [{ label: "tokens/s", data: [], borderColor: css("--s-tok"), fill: { target: "origin", above: css("--s-tok") + "1a" } }], (v) => kfmt(v));
+    $("eval-legend").innerHTML = SERIES.map(([k, lab, c]) => `<span><i style="background:var(${c})"></i>${lab}</span>`).join("") +
+      (d.refs || []).map((r) => `<span><i class="dash"></i>${r.label} ${r.value.toFixed(3)}</span>`).join("");
+  }
+  function render(d, updatedAt) {
+    const c = d.config || {}, p = d.progress || {}, cost = d.cost || {};
+    document.title = (d.title || d.run) + " · monitor";
+    $("run-title").textContent = d.title || d.run;
+    $("run-sub").textContent = c.summary || "";
+    const st = $("status"); let status = d.status || "training";
+    if (status === "training" && Date.now() - updatedAt > 6 * 60 * 1000) status = "stale";
+    st.className = "pill " + status; st.textContent = { training: "training", done: "finished", failed: "failed", stopped: "stopped", starting: "starting", stale: "no update for " + ago(Date.now() - updatedAt).replace(" ago", "") }[status] || status;
+    lastUpdated = updatedAt;
+    const total = c.steps_total || 1, step = p.step || 0, pct = 100 * step / total;
+    $("t-prog").textContent = fmt(pct, 1) + "%";
+    $("t-prog-d").textContent = `step ${fmt(step)} / ${fmt(total)} · ${kfmt(p.tokens_seen || 0)} of ${kfmt(c.tokens_target || 0)} tokens`;
+    $("m-prog").style.width = Math.min(100, pct) + "%";
+    $("t-eta").textContent = status === "done" ? "done" : hm(p.eta_min);
+    $("t-eta-d").textContent = status === "done" ? ("finished " + dfmt(p.finished_iso)) : (p.finish_iso ? "finishes ~" + dfmt(p.finish_iso) : "");
+    $("t-speed").textContent = p.tok_s ? kfmt(p.tok_s) + "/s" : "–";
+    $("t-speed-d").textContent = p.mfu ? `MFU ${fmt(p.mfu, 1)}% · ${p.step_ms ? fmt(p.step_ms) + " ms/step" : ""}` : "";
+    $("t-cost").textContent = cost.so_far != null ? "$" + fmt(cost.so_far, 2) : "–";
+    $("t-cost-d").textContent = `cap $${fmt(c.cap, 0)}${cost.projected ? " · projected $" + fmt(cost.projected, 0) : ""}${cost.per_b ? " · $" + fmt(cost.per_b, 2) + "/B tok" : ""}`;
+    $("m-cost").style.width = Math.min(100, 100 * (cost.so_far || 0) / (c.cap || 1)) + "%";
+    const fr = (d.evals || {}).fresh || [];
+    const lastF = fr.length ? fr[fr.length - 1] : null;
+    $("t-fresh").textContent = lastF ? lastF[1].toFixed(3) : "–";
+    $("t-fresh-d").textContent = lastF ? `at step ${fmt(lastF[0])}` + (d.ema && d.ema.fresh ? ` · EMA ${d.ema.fresh.toFixed(3)}` : "") : "first eval pending";
+    const ck = d.checkpoints || [];
+    const lastC = ck.length ? ck[ck.length - 1] : null;
+    $("t-ckpt").textContent = lastC ? fmt(lastC[0]) : "–";
+    $("t-ckpt-d").textContent = lastC ? "uploaded " + tfmt(lastC[1]) : "none yet";
+    // phase rail
+    const tst = c.tst_end || 0, pb = c.phase_b_start || total;
+    $("seg-tst").style.width = (100 * tst / total) + "%"; $("seg-norm").style.width = (100 * (pb - tst) / total) + "%"; $("seg-cool").style.width = (100 * (total - pb) / total) + "%";
+    const x = Math.min(100, pct); $("needle").style.left = `calc(${x}% - 1px)`; $("needle-lab").style.left = x + "%";
+    $("needle-lab").style.transform = x < 10 ? "none" : x > 90 ? "translateX(-100%)" : "translateX(-50%)"; $("needle-lab").textContent = "now · " + fmt(step);
+    $("ticks").innerHTML = [0, tst, pb, c.ema_start, total].filter((v, i, a) => v != null && a.indexOf(v) === i)
+      .map((v) => `<span class="${v === c.ema_start ? "ema" : ""}" style="left:${100 * v / total}%">${v === c.ema_start ? "EMA " : ""}${kfmt(v)}</span>`).join("");
+    const phase = step < tst ? "Token bags (TST): each position trains on 4 tokens at once, which speeds early learning." : step < pb ? "Next-token training on the main data mix." : step < total ? "Cool-down: the learning rate is low and the data shifts to the curated mix." : "Training finished.";
+    $("phase-note").textContent = phase + (c.ema_start && step >= c.ema_start && step < total ? " Weight averaging (EMA) is on." : "");
+    // charts
+    ensureCharts(d);
+    charts.eval.data.datasets.forEach((ds) => {
+      if (ds._key) ds.data = ((d.evals || {})[ds._key] || []).filter(([s, v]) => s > 0 && v != null).map(([s, v]) => ({ x: s, y: v }));
+      else if (ds._ref != null) ds.data = [{ x: 0, y: ds._ref }, { x: total, y: ds._ref }];
+    });
+    charts.eval.options.scales.x.max = total; charts.eval.options.scales.y.suggestedMin = 0.8; charts.eval.update();
+    const tr = d.train || [];
+    charts.loss.data.datasets[0].data = tr.filter((r) => r[0] >= 25 && r[1] != null).map((r) => ({ x: r[0], y: r[1] })); charts.loss.options.scales.x.max = total; charts.loss.update();
+    charts.tok.data.datasets[0].data = tr.filter((r) => r[0] >= 25).map((r) => ({ x: r[0], y: r[2] })); charts.tok.options.scales.x.max = total; charts.tok.update();
+    // on track vs Gargi
+    const cm = d.compare;
+    if (cm) {
+      $("cmp-note").textContent = cm.note + " Shaded: " + (cm.band_note || "");
+      $("cmp-legend").innerHTML = `<span><i style="background:var(--s-web)"></i>Udgam-3 web</span><span><i style="background:var(--s-reason)"></i>Udgam-3 reasoning</span><span><i class="dash"></i>${cm.label}</span><span><i style="background:var(--s-web);opacity:.35;height:8px"></i>projected final (web)</span>`;
+      charts.cmp.data.datasets.forEach((ds) => {
+        if (ds._k) ds.data = ((d.evals || {})[ds._k] || []).filter(([s, v]) => s > 0 && v != null).map(([s, v]) => ({ x: 100 * s / total, y: v }));
+        else if (ds._g) ds.data = (cm.series[ds._g] || []).map(([f, v]) => ({ x: 100 * f, y: v }));
+        else if (ds._b != null && cm.band && cm.band.web) ds.data = [{ x: 94, y: cm.band.web[ds._b] }, { x: 100, y: cm.band.web[ds._b] }];
+      });
+      charts.cmp.options.scales.x.min = 0; charts.cmp.options.scales.x.max = 100; charts.cmp.update();
+    }
+    renderCompare(d);
+    // learning rate: plan from the recipe, actual from the log
+    const W = c.warmup_steps || 0, wd = c.warmdown_ratio || 0, fl = c.final_lr_frac || 0;
+    const plan = (st) => st < W ? (st + 1) / W : (st <= total - wd * total ? 1 : ((total - st) / (wd * total)) * 1 + (1 - (total - st) / (wd * total)) * fl);
+    const pts = []; for (let i = 0; i <= 200; i++) { const st = Math.round(total * i / 200); pts.push({ x: st, y: plan(st) }); }
+    charts.lr.data.datasets[0].data = pts;
+    charts.lr.data.datasets[1].data = tr.filter((r) => r[4] != null).map((r) => ({ x: r[0], y: r[4] }));
+    charts.lr.options.scales.x.max = total; charts.lr.options.scales.y.min = 0; charts.lr.options.scales.y.max = 1.05; charts.lr.update();
+    // data read
+    const B = c.batch || 0, S4 = c.tst_s || 1, pbst = c.phase_b_start || total;
+    const mainRead = Math.min(step, tst) * S4 * B + Math.max(0, Math.min(step, pbst) - tst) * B;
+    const coolRead = Math.max(0, step - pbst) * B;
+    const mainEnd = tst * S4 * B + (pbst - tst) * B, coolEnd = (total - pbst) * B;
+    const pm = c.pool_main || 1, pc = c.pool_cool || 1, dp = d.data_pos || {};
+    $("data-note").textContent = `Token bags read ${S4} tokens per position, so the main pool is read fast at first. By the end the run reads the main pool ${(mainEnd / pm).toFixed(2)} times and the cool-down pool ${(coolEnd / pc).toFixed(2)} times; repeating text up to ~4 times costs almost nothing (Muennighoff et al., 2023).`;
+    const meter = (name, read, end, pool, pos) => {
+      const passes = read / pool, endPasses = end / pool, scale = Math.max(endPasses, 1);
+      return `<div class="mrow"><div class="top"><b>${name}</b><span class="mono">${kfmt(read)} of ${kfmt(pool)} tokens · ${passes.toFixed(2)} passes</span></div>
+        <div class="bar"><i style="width:${100 * Math.min(passes, 1) / scale}%"></i>${passes > 1 ? `<i class="second" style="left:${100 / scale}%;width:${100 * (passes - 1) / scale}%"></i>` : ""}</div>
+        <div class="cap">${pos}planned by the end: ${endPasses.toFixed(2)} passes</div></div>`;
+    };
+    const posA = dp.phase === "A" ? `loader: pass ${dp.epoch}, file ${fmt(dp.pq + 1)} of ${fmt(c.files_main)} · ` : "";
+    const posB = dp.phase === "B" ? `loader: pass ${dp.epoch}, file ${fmt(dp.pq + 1)} of ${fmt(c.files_cool)} · ` : "";
+    $("data-meters").innerHTML = meter("Main pool (v3 mix)", mainRead, mainEnd, pm, posA) + meter("Cool-down pool (last 20%)", coolRead, coolEnd, pc, posB);
+    // monitoring
+    const mons = d.monitors || [];
+    $("mon").innerHTML = mons.map((m) => `<div class="m"><span>${m.name}</span><span><span class="chip ${m.alive ? "up" : "down"}">${m.alive ? "running" : "stopped"}</span></span><span class="last"></span></div>`).join("") +
+      `<div class="m"><span>Dashboard feed</span><span><span class="chip ${Date.now() - updatedAt < 6 * 60000 ? "up" : "down"}">${Date.now() - updatedAt < 6 * 60000 ? "running" : "stale"}</span></span><span class="last">last push ${ago(Date.now() - updatedAt)}</span></div>`;
+    [...$("mon").querySelectorAll(".m")].forEach((el, i) => { if (mons[i]) el.querySelector(".last").textContent = (m => m.role + (m.last ? " · last: " + m.last : ""))(mons[i]); });
+    const g = d.gpus || [];
+    $("gpus").innerHTML = g.length ? g.map((x) => `<tr><td>${x.i}</td><td class="num ${x.util >= 90 ? "ok" : "warnc"}">${fmt(x.util)}%</td><td class="num">${fmt(x.mem, 1)} / ${fmt(x.mem_total)} GB</td><td class="num">${fmt(x.power)} W</td><td class="num ${x.temp >= 85 ? "warnc" : ""}">${fmt(x.temp)} °C</td></tr>`).join("") : `<tr><td colspan="5" class="empty">No reading this time.</td></tr>`;
+    // targets
+    const tg = d.targets || [];
+    $("targets").innerHTML = tg.map((t) => `<tr><td></td><td></td><td></td><td><span class="chip ${t.status === "live" ? "live" : "after"}"></span></td></tr>`).join("");
+    [...$("targets").querySelectorAll("tr")].forEach((tr_, i) => { const t = tg[i], td = tr_.querySelectorAll("td");
+      td[0].textContent = t.what + (t.expect ? " (" + t.expect + ")" : ""); td[1].textContent = t.must || "–"; td[2].textContent = t.aim || "–"; td[3].firstChild.textContent = t.status; });
+    // budget + next steps
+    const bg = d.budget || {}, proj = cost.projected || cost.so_far || 0, done = (bg.before_run || 0) + (cost.so_far || 0);
+    const parts = [["Before this run", bg.before_run || 0, "--s-val"], ["This run so far", cost.so_far || 0, "--accent"], ["This run, rest (projected)", Math.max(0, proj - (cost.so_far || 0)), "--s-tok"], ["Later steps (estimate)", bg.later_steps || 0, "--s-task"]];
+    const tot = parts.reduce((a, p_) => a + p_[1], 0), scaleMax = Math.max(tot, bg.original_cap || 0) * 1.05;
+    $("stack").innerHTML = parts.map(([n, v, col]) => `<i title="${n}" style="width:${100 * v / scaleMax}%;background:var(${col})"></i>`).join("") +
+      (bg.original_cap ? `<span class="capline" style="left:${100 * bg.original_cap / scaleMax}%" title="original cap"></span>` : "");
+    $("bleg").innerHTML = parts.map(([n, v, col]) => `<span><i style="background:var(${col})"></i>${n} $${fmt(v, 0)}</span>`).join("") + (bg.original_cap ? `<span><i style="background:var(--ink);width:2px"></i>original cap $${fmt(bg.original_cap)}</span>` : "");
+    $("budget-note").textContent = `Udgam-3 so far $${fmt(done, 2)}; projected all-in about $${fmt(tot, 0)}. ` + (bg.note || "");
+    const ns = d.next_steps || [];
+    $("steps").innerHTML = ns.map((x) => `<li><span><span class="chip ${x.state}">${x.state}</span></span><span class="t"></span><span class="c"></span></li>`).join("");
+    [...$("steps").querySelectorAll("li")].forEach((li, i) => { li.querySelector(".t").textContent = ns[i].step; li.querySelector(".c").textContent = ns[i].cost || ""; });
+    // checkpoints
+    const bs = c.batch || 0;
+    $("ckpts").innerHTML = ck.length ? ck.slice().reverse().map(([s, t]) => `<tr><td class="num">${fmt(s)}</td><td class="num">${kfmt(s * bs)}</td><td class="num">${dfmt(t)}</td></tr>`).join("") : `<tr><td colspan="3" class="empty">None yet.</td></tr>`;
+    // events
+    const ev = (d.events || []).slice().sort((a, b) => (a.t < b.t ? 1 : -1));
+    $("events").innerHTML = ev.length ? ev.map((e) => `<div class="ev ${e.kind || "info"}"><time>${tfmt(e.t)}</time><div class="t"></div></div>`).join("") : `<div class="empty">No events yet.</div>`;
+    [...$("events").querySelectorAll(".t")].forEach((el, i) => el.textContent = ev[i].text);
+    // setup
+    const rows = [["Model", c.model], ["Data", c.data], ["Tokens", c.tokens_target ? kfmt(c.tokens_target) + " (" + fmt(c.steps_total) + " steps × " + fmt(c.batch) + ")" : null],
+      ["Recipe", c.recipe], ["Hardware", c.hardware], ["Price", c.price_h ? "$" + fmt(c.price_h, 2) + " per hour" : null], ["Hard stop", c.deadline_iso ? dfmt(c.deadline_iso) + " or $" + fmt(c.cap) : null],
+      ["Started", dfmt(c.started_iso)], ["W&B", c.wandb_url ? `<a href="${/^https:\/\/wandb\.ai\//.test(c.wandb_url) ? c.wandb_url : "#"}" target="_blank" rel="noreferrer noopener">open run</a>` : null]].filter((r) => r[1]);
+    $("cfg").innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${k === "W&B" ? v : ""}</dd>`).join("");
+    [...$("cfg").querySelectorAll("dd")].forEach((el, i) => { if (rows[i][0] !== "W&B") el.textContent = rows[i][1]; });
+  }
+  async function load(run) {
+    try {
+      const r = await fetch(base + "api/run/" + encodeURIComponent(run), { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const j = await r.json();
+      lastData = j.data; lastAt = j.updated_at; render(j.data, j.updated_at); $("err").hidden = true;
+    } catch (e) { $("err").hidden = false; $("err").textContent = "Couldn't load the latest numbers (" + e.message + "). Retrying in 30 s."; }
+  }
+  async function init() {
+    try {
+      const r = await fetch(base + "api/runs", { cache: "no-store" }); const j = await r.json();
+      const runs = j.runs || [];
+      if (!runs.length) { $("run-sub").textContent = "No runs have reported yet."; return; }
+      let want = new URLSearchParams(location.search).get("run");
+      try { want = want || localStorage.getItem("udgam-dash-run"); } catch (_) {}
+      if (!runs.some((x) => x.run === want)) want = runs[0].run;
+      $("run-select").innerHTML = runs.map((x) => `<option value="${x.run}">${x.run}</option>`).join("");
+      $("run-select").value = want; $("run-select").hidden = runs.length < 2;
+      $("run-select").onchange = () => { current = $("run-select").value; try { localStorage.setItem("udgam-dash-run", current); } catch (_) {} Object.values(charts).forEach((ch) => ch.destroy()); charts = {}; load(current); };
+      current = want; await load(current);
+      clearInterval(timer); timer = setInterval(() => load(current), 30000);
+      setInterval(() => { if (lastUpdated) $("updated").textContent = "updated " + ago(Date.now() - lastUpdated); }, 1000);
+    } catch (e) { $("err").hidden = false; $("err").textContent = "Couldn't reach the dashboard data (" + e.message + ")."; }
+  }
+  document.querySelectorAll("#cr .seg button").forEach((b) => b.addEventListener("click", () => {
+    xMode = b.dataset.x; try { localStorage.setItem("udgam-dash-xmode", xMode); } catch (_) {}
+    if (lastData) renderCompare(lastData);
+  }));
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { Object.values(charts).forEach((ch) => ch.destroy()); charts = {}; if (current) load(current); });
+  init();
+})();
+</script>
+</body>
+</html>

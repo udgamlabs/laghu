@@ -1,0 +1,32 @@
+{
+ "note": "chat-suite models, pinned 2026-10-19; settings documented in models.py",
+ "dtype": "bfloat16",
+ "models": [
+  {
+   "engine": "vllm",
+   "trust": false,
+   "modes": [
+    "off",
+    "on"
+   ],
+   "gated": true,
+   "reasoning": false,
+   "bos_check": true,
+   "name": "laghu",
+   "repo": "udgamlabs/Laghu-SFT-v1",
+   "group": "candidate",
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.95,
+    "top_k": 64
+   },
+   "sampling_src": "generation_config.json",
+   "sha": "419343f6a25b99b90ccbd829bbb3619b9c957460",
+   "ctx": 16384,
+   "arch": "Gemma4ForCausalLM",
+   "config_dtype": "bfloat16",
+   "params": 151800000,
+   "licence": "apache-2.0 (planned)"
+  }
+ ]
+}

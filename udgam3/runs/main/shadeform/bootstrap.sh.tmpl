@@ -1,0 +1,46 @@
+#!/bin/bash
+# Udgam Shadeform bootstrap: runs ON the rented VM (Shadeform startup script, as root) when the instance is active.
+# 1. puts /workspace on the largest local filesystem (the VM's big NVMe), 2. checks the GPU driver and Docker,
+# 3. runs the SAME container image and ops/pod_train.sh as on Runpod, with /workspace mounted from the host, so the
+# training log is at /udgam_ws/logs/$RUN_NAME.log on the host too (read by the Mac watcher over SSH).
+# No Shadeform key is on the VM: deletion = Shadeform auto_delete (date + spend caps) or the Mac-side self-delete mirror,
+# which acts on the "self-delete:" lines that pod_train.sh / this script write to the run log.
+set -u
+RUN_NAME=__RUN_NAME__
+IMAGE=__IMAGE__
+mkdir -p /var/log/udgam; exec >>/var/log/udgam/init.log 2>&1
+ts() { date -u +%FT%TZ; }
+# our Mac's SSH public key for every login user on the VM (the Shadeform-managed key's private half is not available to
+# us); this is the only way the Mac watcher reads the log and the self-delete mirror sees "self-delete:" lines
+PUB='__SSH_PUBKEY__'
+for h in /root /home/*; do
+  [ -d "$h" ] || continue; u=$(stat -c %U "$h"); mkdir -p "$h/.ssh"
+  grep -qF "$PUB" "$h/.ssh/authorized_keys" 2>/dev/null || echo "$PUB" >> "$h/.ssh/authorized_keys"
+  chown -R "$u" "$h/.ssh"; chmod 700 "$h/.ssh"; chmod 600 "$h/.ssh/authorized_keys"
+done
+echo "[$(ts)] udgam bootstrap on $(hostname) for $RUN_NAME"
+BIG=$(df -P -k -x tmpfs -x devtmpfs -x overlay -x squashfs -x efivarfs 2>/dev/null | awk 'NR>1 && $6 !~ /^\/(boot|snap)/ {print $4, $6}' | sort -n -r | head -1 | awk '{print $2}')
+W="${BIG%/}/udgam_ws"; mkdir -p "$W/logs"; chmod 755 "$W" "$W/logs"
+[ "$W" = /udgam_ws ] || ln -sfn "$W" /udgam_ws   # fixed host path for the Mac watcher (the container sees it as /workspace)
+RLOG="$W/logs/$RUN_NAME.log"; touch "$RLOG"; chmod 644 "$RLOG"
+fatal() { echo "[$(ts)] BOOTSTRAP FAILED: $1"; echo "[$(ts)] BOOTSTRAP FAILED: $1" >> "$RLOG"; echo "[$(ts)] self-delete: bootstrap failed ($1)" >> "$RLOG"; exit 1; }
+echo "[$(ts)] workspace $W, free $(df -h "$W" | awk 'NR==2 {print $4}')" | tee -a "$RLOG"
+DRV=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -1)
+[ -n "$DRV" ] || fatal "no nvidia-smi / driver on the host"
+echo "[$(ts)] host: $(nvidia-smi -L | wc -l) GPUs, driver $DRV, $(nvidia-smi | grep -o 'CUDA Version: [0-9.]*'), $(nproc) vCPU, $(free -g | awk '/Mem:/ {print $2}') GB RAM" | tee -a "$RLOG"
+command -v docker >/dev/null || fatal "docker not installed"
+docker info 2>/dev/null | grep -qi nvidia || echo "[$(ts)] note: docker info shows no nvidia runtime; trying --gpus all anyway" | tee -a "$RLOG"
+umask 077
+cat > /root/udgam.env <<'UDGAM_ENV_EOF'
+__ENVFILE__
+UDGAM_ENV_EOF
+umask 022
+for i in 1 2 3; do docker pull -q "$IMAGE" >/dev/null && break; echo "[$(ts)] docker pull attempt $i failed" | tee -a "$RLOG"; sleep 20; done
+docker image inspect "$IMAGE" >/dev/null 2>&1 || fatal "docker pull failed"
+cat > "$W/udgam_start.sh" <<'UDGAM_START_EOF'
+__START__
+UDGAM_START_EOF
+docker rm -f udgam >/dev/null 2>&1
+docker run -d --name udgam --restart no --gpus all --network host --ipc host --ulimit memlock=-1 --ulimit stack=67108864 \
+  -v "$W:/workspace" --env-file /root/udgam.env "$IMAGE" bash /workspace/udgam_start.sh >/dev/null || fatal "docker run failed"
+echo "[$(ts)] container started" | tee -a "$RLOG"

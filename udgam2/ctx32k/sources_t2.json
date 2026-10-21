@@ -1,0 +1,21 @@
+{
+ "_comment": "Batch 2 (top-up) train files for build_long32k.py --sources-json. None of these files was read by batch 1 (data/udgam2_ctx32k/report.json, train or held-out); the builder re-checks this with --exclude-report. Picked 2026-10-12 from the repo listings: next files after batch 1's. Hansard: record 'source' filter (00000 holds the only unused Lords debates, at its tail; 00004-00007 are Commons debates). USGPO: files whose records are mostly the wanted collection (full-file collection counts measured 2026-10-12). Stack v2: unused files whose first block is a mainstream language (head probe of all 764 files; no file starts with Python).",
+ "gutenberg":       {"files": ["v0/documents/00004_pg.jsonl.gz", "v0/documents/00005_pg.jsonl.gz", "v0/documents/00006_pg.jsonl.gz"]},
+ "pre1929":         {"files": ["public_library_1929_dolma-0002.json.gz", "public_library_1929_dolma-0003.json.gz", "public_library_1929_dolma-0004.json.gz"]},
+ "loc":             {"files": ["data/00002_loc_books.jsonl.gz", "data/00003_loc_books.jsonl.gz", "data/00004_loc_books.jsonl.gz"]},
+ "arxiv":           {"files": ["00002_arxiv-papers.jsonl.gz", "00003_arxiv-papers.jsonl.gz", "00004_arxiv-papers.jsonl.gz"]},
+ "doab":            {"files": ["00002_doab.json.gz", "00003_doab.json.gz", "00004_doab.json.gz"]},
+ "pubmed":          {"files": ["data/00002_pubmedcentral.jsonl.gz", "data/00003_pubmedcentral.jsonl.gz"]},
+ "hansard_commons": {"files": ["uk_hansard/00004_ukhansard.jsonl.gz", "uk_hansard/00005_ukhansard.jsonl.gz", "uk_hansard/00006_ukhansard.jsonl.gz", "uk_hansard/00007_ukhansard.jsonl.gz"],
+                     "rec_sources": ["uk-hansard-commons-debates"]},
+ "hansard_lords":   {"files": ["uk_hansard/00000_ukhansard.jsonl.gz"], "rec_sources": ["uk-hansard-lords-debates"]},
+ "usgpo_chrg":      {"files": ["data/00035_usgpo.jsonl.gz", "data/00036_usgpo.jsonl.gz", "data/00037_usgpo.jsonl.gz"]},
+ "usgpo_crpt":      {"files": ["data/00010_usgpo.jsonl.gz", "data/00070_usgpo.jsonl.gz"]},
+ "usgpo_gao":       {"files": ["data/00070_usgpo.jsonl.gz", "data/00008_usgpo.jsonl.gz"]},
+ "usgpo_crec":      {"files": ["data/00063_usgpo.jsonl.gz", "data/00064_usgpo.jsonl.gz"]},
+ "wikipedia":       {"files": ["00002_wikipedia.com.jsonl.gz", "00003_wikipedia.com.jsonl.gz", "00004_wikipedia.com.jsonl.gz"]},
+ "wikisource":      {"files": ["00002_wikisource.com.jsonl.gz", "00003_wikisource.com.jsonl.gz"]},
+ "stackv2_a":       {"files": ["documents/00100_stackv2.jsonl.gz", "documents/00217_stackv2.jsonl.gz", "documents/00553_stackv2.jsonl.gz", "documents/00153_stackv2.jsonl.gz", "documents/00316_stackv2.jsonl.gz", "documents/00367_stackv2.jsonl.gz", "documents/00256_stackv2.jsonl.gz"]},
+ "stackv2_b":       {"files": ["documents/00108_stackv2.jsonl.gz", "documents/00212_stackv2.jsonl.gz", "documents/00215_stackv2.jsonl.gz", "documents/00266_stackv2.jsonl.gz", "documents/00197_stackv2.jsonl.gz", "documents/00335_stackv2.jsonl.gz", "documents/00216_stackv2.jsonl.gz"]},
+ "stackv2_c":       {"files": ["documents/00112_stackv2.jsonl.gz", "documents/00309_stackv2.jsonl.gz", "documents/00305_stackv2.jsonl.gz", "documents/00287_stackv2.jsonl.gz", "documents/00292_stackv2.jsonl.gz", "documents/00129_stackv2.jsonl.gz", "documents/00291_stackv2.jsonl.gz"]}
+}

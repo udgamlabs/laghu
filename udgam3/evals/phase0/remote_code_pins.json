@@ -1,0 +1,12 @@
+{
+ "SurjoLabs/Surjo-100m": "bd2dd851bcb14d0bff5b3a78ca58246b99c441f4",
+ "AxiomicLabs/GPT-X3-150M": "46407499ecaf5f0e81f2798aa302c5641f36d4b1",
+ "bench-labs/cagliostro-v3.5": "2e3a2cdb72c0e979d498f2db00ed599e016ac95a",
+ "opencerebral/Boris-2-Preview-1": "431ba2b8bb288ba3c6b677f90b9f82364ebb50f2",
+ "altslate/JugnuLM-110M-R2plus": "d3dd9ab3a8add11d9a9272bf1690af59cf8461ee",
+ "glouriousgautam/LiLM1-230M-base": "5391c31c741fc7256ffef6580657a8190888754d",
+ "SLM-Archive/BananaMind-2-Pro": "d1c77cff6064c96b0995e3b539ea6bc78f0d9d51",
+ "User01110/100M-exp": "6341d606785354c1d13c8c9cdfeb47b53bcaee8e",
+ "bench-labs/tinctura-v1": "f475b8a2698b0f2de14fbae584014908fec4f719",
+ "q-project/Q-164M": "5ed694f0421c2c0749a3695a21b7f468f745c08f"
+}

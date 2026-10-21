@@ -1,0 +1,19 @@
+{
+ "EleutherAI/pythia-160m": "50f5173d932e8e61f858120bcb800b97af589f46",
+ "HuggingFaceTB/SmolLM2-135M": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+ "HuggingFaceTB/SmolLM2-135M-Instruct": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+ "HuggingFaceTB/SmolLM2-360M": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49",
+ "LiquidAI/LFM2.5-230M": "40cb2ad3b3044d5a41eee083a6103c8b523afa45",
+ "PleIAs/Monad": "d8fce6b01ee5c5575bf00a74f6e6463ab5796112",
+ "SupraLabs/Supra2-100M-Instruct": "2c90ade6ab47b910f48d0157a3e4c421d6311ed5",
+ "UdgamLabs/Udgam-384M-Base-4K": "bfe97283ccb72007de6d3206b5232ace26abf23b",
+ "UdgamLabs/Udgam-384M-Chat": "af005e4c5f49ef656453d0aca72845c3016d6fdb",
+ "facebook/MobileLLM-R1-140M-base": "27cb0e3b88e117559000732d26d3b08d0339cf7e",
+ "google/gemma-3-270m": "9b0cfec892e2bc2afd938c98eabe4e4a7b1e0ca1",
+ "YOUR_HF_NAMESPACE/laghu-base::udgam3-base-v1/ema": "1f2e414c7ae7c9fa9ac313a06b0694a72f7d8e23",
+ "sfanm/nltower-100m-base": "43d734a079ef211a45f681cdce5b4c49145f0682",
+ "tiiuae/Falcon-H1-Tiny-90M-Base": "7994372e93b62822ae25f8bfb19f653649cea3a3",
+ "tiiuae/Falcon-H1-Tiny-90M-Instruct": "e6389502a0b12cd8da894b395ba5bf7436873b16",
+ "udgamlabs/Gargi": "4398abf9c1de168f5291f1bb534c8b7b4b3e2856",
+ "udgamlabs/Gargi-Base": "8a11ccf55fd821d6b6b54b0161ec54cc90abd7df"
+}

@@ -1,0 +1,21 @@
+{
+ "n": 8,
+ "texts_per_eval": {
+  "mmlu": 14042,
+  "arc": 3548,
+  "hellaswag": 50210,
+  "gsm8k": 2638,
+  "piqa": 9844,
+  "winogrande": 6068,
+  "openbookqa": 1000,
+  "commonsenseqa": 2361,
+  "ifeval": 541,
+  "math500": 500,
+  "bfcl": 8200
+ },
+ "unique_grams": 2955256,
+ "template_grams_removed": 35481,
+ "seconds": 55.2,
+ "path": "~/.cache/udgam3_sft/eval8_v1.npz",
+ "normalisation": "build_heldout.norm_for_hash tokens, blake2b-64 per 8-gram"
+}

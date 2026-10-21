@@ -1,0 +1,29 @@
+{
+ "name": "udgam3-data-build-v3b",
+ "computeType": "CPU",
+ "cloudType": "SECURE",
+ "cpuFlavorIds": [
+  "cpu3g"
+ ],
+ "vcpuCount": 32,
+ "imageName": "python:3.12-slim",
+ "containerDiskInGb": 320,
+ "env": {
+  "HF_TOKEN": "{{ RUNPOD_SECRET_HF_TOKEN }}",
+  "CODE_REPO": "YOUR_HF_NAMESPACE/laghu-build-code",
+  "DATA_REPO": "YOUR_HF_NAMESPACE/laghu-pretrain-v3",
+  "MAX_HOURS": "6",
+  "SCALE": "5.0",
+  "HF_HUB_DISABLE_PROGRESS_BARS": "1",
+  "G1_REPO_V3": "YOUR_HF_NAMESPACE/laghu-g1-v3",
+  "G1_REPO_V3S": "YOUR_HF_NAMESPACE/laghu-g1-v3s",
+  "SMALL_SCALE": "0.3",
+  "BUILD_WORKERS": "32",
+  "G1_MIXES": "v3s"
+ },
+ "dockerStartCmd": [
+  "bash",
+  "-c",
+  "pip install -q --root-user-action=ignore huggingface_hub==1.33.0 && hf download $CODE_REPO --local-dir /code --quiet && exec bash /code/udgam3/runs/data_v3/bootstrap_v3.sh"
+ ]
+}
