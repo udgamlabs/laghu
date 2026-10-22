@@ -35,7 +35,7 @@ check every number in this README against the files in this repository.
 
 ![Held-out bits per byte during pretraining](docs/figures/pretraining-bpb.png)
 
-[Model card](https://huggingface.co/udgamlabs/Laghu) · [Try it](https://huggingface.co/spaces/udgamlabs/Laghu) · [Technical report](https://udgamlabs.com/research/laghu) · [udgamlabs.com](https://udgamlabs.com)
+[Model card](https://huggingface.co/udgamlabs/Laghu) · [Try it in your browser](https://udgamlabs.com/models/laghu) · [Space](https://huggingface.co/spaces/udgamlabs/Laghu) · [Technical report](https://udgamlabs.com/research/laghu) · [udgamlabs.com](https://udgamlabs.com)
 
 | | |
 |---|---|
@@ -123,7 +123,7 @@ significant difference in chat quality (45.9% win rate, p = 0.06) or multi-turn 
 size. The categories, rivals and statistics were fixed in advance in the pre-registration.
 
 **Base model** (lm-eval 0.4.13, zero-shot): 5-task commonsense average (ARC-Easy, ARC-Challenge, HellaSwag, PIQA,
-WinoGrande) 49.9, 5th of the 19 models up to 200M we measured; SmolLM2-135M 51.8; Falcon-H1-Tiny-90M-Base 47.2.
+WinoGrande) 49.9, 5th of the 19 models up to 200M we measured on 19 October; SmolLM2-135M 51.8; Falcon-H1-Tiny-90M-Base 47.2.
 On new text (Wikipedia pages created and arXiv abstracts submitted in September and October 2026), Laghu-Base scores
 0.919 bits per byte (lower is better), ahead of SmolLM2-135M (0.941) and Falcon-H1-Tiny-90M-Base (0.979) and just behind
 our 2.5× larger Gargi-Base (0.914); all three differences are significant in a paired bootstrap over the 1,695 documents.
