@@ -7,8 +7,10 @@
 **Laghu is a 152M-parameter English chat model trained from scratch for $146 of pretraining compute** (8× A100 for
 13.2 hours; about $194 for the whole project). It read about 71 billion training tokens, roughly 28 times fewer than
 SmolLM2-135M, yet its base model predicts new text better than SmolLM2-135M and Falcon-H1-Tiny-90M-Base, and the chat
-model is level with SmolLM2-135M-Instruct on chat quality and multi-turn conversation and ahead of it on maths. It has a
-thinking on/off switch and a 16K-token context.
+model is level with SmolLM2-135M-Instruct on chat quality and multi-turn conversation and ahead of it on maths. It
+thinks before it answers (on/off), holds multi-turn conversations and chats, in 163 MB that runs in your browser, with a
+16K-token context. Falcon-H1-Tiny-90M-Instruct, trained with about 12 times our compute, is ahead on all three of our
+chat tests, and Laghu's maths and instruction following are weak.
 
 Laghu is a fully open research release: the weights, every checkpoint that survives, this code, the full recipe, the
 data rebuild scripts, every evaluation output item by item, what failed, and what it cost.
@@ -54,7 +56,20 @@ check every number in this README against the files in this repository.
 [Laghu-Base-32K](https://huggingface.co/udgamlabs/Laghu-Base-32K),
 [Laghu-Checkpoints](https://huggingface.co/udgamlabs/Laghu-Checkpoints),
 [Laghu-GGUF](https://huggingface.co/udgamlabs/Laghu-GGUF), [Laghu-MLX](https://huggingface.co/udgamlabs/Laghu-MLX).
-The model card has run commands for transformers, llama.cpp, Ollama and MLX.
+Run it in one line:
+
+| Where | How |
+|---|---|
+| Your browser, no install | [udgamlabs.com/models/laghu](https://udgamlabs.com/models/laghu) (runs on your device) |
+| Hugging Face Space | [spaces/udgamlabs/Laghu](https://huggingface.co/spaces/udgamlabs/Laghu) |
+| Ollama | `ollama run hf.co/udgamlabs/Laghu-GGUF:Q8_0 --think=false` |
+| LM Studio | search for `udgamlabs/Laghu-GGUF` in the app |
+| llama.cpp | `llama-server -hf udgamlabs/Laghu-GGUF:Q8_0 --jinja --reasoning off -c 16384` |
+| MLX | `mlx_lm.generate --model udgamlabs/Laghu-MLX-8bit --prompt "Who are you?" --chat-template-config '{"enable_thinking": false}'` |
+
+These apps turn thinking on by default; the switches above turn it off for normal chat (thinking helps a little on short
+arithmetic and hurts most other tasks). The [model card](https://huggingface.co/udgamlabs/Laghu) has the transformers
+code.
 
 **Reproduce it.** Every stage below ran from the files in this repository. Scripts are published exactly as they ran;
 private Hugging Face repositories were renamed to `YOUR_HF_NAMESPACE/...` placeholders ([docs/NAME_MAP.md](./docs/NAME_MAP.md)),
