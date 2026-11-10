@@ -86,7 +86,7 @@ def excerpt(text: str) -> tuple[str, str, str]:
     return " ".join(w[:280]), " ".join(w[n // 2 - 110:n // 2 + 110]), " ".join(w[-180:])
 
 
-def scan(spec, shards, tok, want: dict, stats: dict, passages: list, n_pass: int, rng) -> list[dict]:
+def scan(spec, shards, tok, want: dict, stats: dict, passages: list, n_pass: int, rng, seen: set) -> list[dict]:
     import pyarrow.parquet as pq
     from huggingface_hub import HfFileSystem
     repo, rev, pat, lic = spec
@@ -122,6 +122,10 @@ def scan(spec, shards, tok, want: dict, stats: dict, passages: list, n_pass: int
                 if contamination([text], long_doc=True):
                     stats["eval/heldout overlap"] = stats.get("eval/heldout overlap", 0) + 1
                     continue
+                h = hashlib.sha256(text[:2000].encode()).hexdigest()[:12]
+                if h in seen:
+                    continue
+                seen.add(h)
                 title = r.get("title") or ""
                 if not title:
                     first = text.strip().splitlines()[0][:120]
@@ -175,13 +179,14 @@ def main():
     rng = random.Random(a.seed)
     tok = tokenizer()
     stats, passages = {}, []
+    seen = set()
     n_pdf = int(a.n * a.pdf_share)
     want_pdf = {(lo, hi): round(n_pdf * f) for lo, hi, f in BINS}
     want_wiki = {(lo, hi): round((a.n - n_pdf) * f) for lo, hi, f in BINS}
     wsh = [int(x) for x in a.wiki_shards.split(",") if x]
     psh = [int(x) for x in a.pdf_shards.split(",") if x]
-    docs = scan(WIKI, wsh, tok, want_wiki, stats, passages, a.passages, rng) if wsh and a.n - n_pdf > 0 else []
-    docs += scan(PDF, psh, tok, want_pdf, stats, passages, 0, rng)
+    docs = scan(WIKI, wsh, tok, want_wiki, stats, passages, a.passages, rng, seen) if wsh and a.n - n_pdf > 0 else []
+    docs += scan(PDF, psh, tok, want_pdf, stats, passages, 0, rng, seen)
     prev = []
     if a.append and (CACHE / "longdocs_full_v1.jsonl").exists():
         prev = [json.loads(l) for l in open(CACHE / "longdocs_full_v1.jsonl", encoding="utf-8")]

@@ -1041,7 +1041,7 @@ def assemble(args, work, results, t_start):
             rgot += n
             taken += 1
         rshards.append(dict(shard=key, rows=len(texts), row_start=row0, rows_taken=taken,
-                            whole=taken == len(texts), tokens_taken=sum(ntoks[row0:row0 + taken]),
+                            whole=row0 + taken == len(texts), tokens_taken=sum(ntoks[row0:row0 + taken]),
                             tokens_in_shard=sum(ntoks)))
         del texts
     rep["replay"] = dict(repo=REPLAY_REPO, target_tokens=replay_target, tokens=rgot, docs=len(replay_rows),

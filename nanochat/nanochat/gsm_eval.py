@@ -6,12 +6,14 @@ Prompt formats match the falsifier training data (udgam-loop/falsifier/prep_data
 Greedy decoding without a KV cache (fine for <=100M models), batched by IDENTICAL prompt length (no padding). With little-endian
 training data the prompt goes through the same digit reverser and the output is reversed back before scoring.
 """
+import ast
 import multiprocessing as mp
 import re
 
 import torch
 
 from nanochat import udgam_loop
+from nanochat.execution import execute_code
 
 
 def _boxed(s):
@@ -33,24 +35,44 @@ def _last_num(s):
     return m[-1] if m else None
 
 
-def _exec_solution(code, q):
-    try:
-        env = {}
-        exec(code, {"__builtins__": __builtins__, "math": __import__("math")}, env)
-        fn = env.get("solution") or next((v for k, v in env.items() if callable(v)), None)
-        q.put(fn() if fn else None)
-    except Exception:
-        q.put(None)
+_FIND_AND_CALL = """
+try:
+    __fn = globals().get("solution")
+    if __fn is None:
+        __fn = next((v for v in list(globals().values()) if callable(v)), None)
+    __result = __fn() if __fn is not None else None
+except Exception:
+    __result = None
+print(repr(__result))
+"""
+
+
+def _exec_solution(code, q, timeout=3.0):
+    """Build a program that defines the generated solution() and prints its return value, then run
+    it through the execution.py sandbox (clean subprocess, scrubbed env, resource limits, disabled
+    builtins) instead of a raw exec() in this (CUDA-initialized) process."""
+    program = "import math\n" + code + "\n\n" + _FIND_AND_CALL
+    result = execute_code(program, timeout=timeout)
+    val = None
+    if result.success:
+        lines = [l for l in result.stdout.splitlines() if l.strip()]
+        if lines:
+            try:
+                val = ast.literal_eval(lines[-1])
+            except Exception:
+                val = None
+    q.put(val)
 
 
 def run_code(code, timeout=3.0):
     """Run model-written code in a separate process with a timeout (pod only; model trained on TinyGSM programs)."""
     q = mp.get_context("fork").Queue()
-    p = mp.get_context("fork").Process(target=_exec_solution, args=(code, q))
+    p = mp.get_context("fork").Process(target=_exec_solution, args=(code, q, timeout))
     p.start()
     p.join(timeout)
     if p.is_alive():
         p.kill()
+        p.join(timeout=1.0)
         return None
     try:
         return q.get_nowait()

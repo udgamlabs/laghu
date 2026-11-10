@@ -283,11 +283,11 @@ def main():
     for t in long_texts_for_overlap:
         g, _ = decontam.ngram_hashes(t, n=10)
         if g.size and ps.size:
-            pos = np.searchsorted(ps, g)
-            pos[pos >= ps.size] = 0
-            hit = ps[pos] == g
-            found[pos[hit]] = True
-            # duplicates of a probe value: mark all equal entries
+            lo = np.searchsorted(ps, g, side="left")
+            hi = np.searchsorted(ps, g, side="right")
+            for lo_i, hi_i in zip(lo[hi > lo], hi[hi > lo]):
+                found[lo_i:hi_i] = True
+                # duplicates of a probe value: mark all equal entries
     per_doc = collections.Counter(po[found].tolist())
     overl = [k for k, c in per_doc.items() if c >= 5]
     check(len(overl) == 0, f"held-out docs overlapping training long rows (>= 5/20 sampled 10-grams): {len(overl)}"
