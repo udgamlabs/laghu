@@ -1,5 +1,13 @@
 # Udgam-3 (Laghu) 32K stretch: results (2026-10-19)
 
+**Caveat added 2026-11-18:** the held-out doc contamination check used for this run
+(`test_long32k.py`) had a bug where a training n-gram matching a probe array with
+duplicate values only marked one matching position, so a held-out doc sharing that
+n-gram with another held-out doc could go unflagged even if it also overlapped
+training data. Fixed, but this run predates the fix, so the "2K held-out bpb" row
+below may include a small number of docs that were not actually clean held-out data.
+We have not rechecked which, if any, of this run's held-out docs were affected.
+
 Run: exactly the approved config (`CHECKLIST_full.md`): Colab G4, 1,900 steps × 524,288 tokens = 996M tokens at seq
 32,768, from `model_ema_076294.pt`. Training 06:08 → 10:02 UTC (rc=0, 75.9K tok/s, 56 GB peak). Final weights:
 private HF `YOUR_HF_NAMESPACE/laghu-ctx32k` (`udgam3-ctx32k/model_001900.pt`, HF export `hf/udgam3-ctx32k`).
